@@ -214,6 +214,9 @@ h1{
     border:1px solid black;
     border-top: none;
 }
+.disabled{
+    color:white;
+}
 
 .ct-point{
     stroke-width:0px;

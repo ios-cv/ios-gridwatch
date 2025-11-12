@@ -12,7 +12,10 @@ import (
 	"time"
 )
 
-const prometheusURL = "http://localhost:9090/api/v1/query"
+const generation_metric_name = "total_import"
+const generation_metric = generation_metric_name + "{purpose=\"solar\"}"
+const actual_power_metric_name = "total_act_power"
+const actual_power_metric = actual_power_metric_name + "{purpose=\"solar\"}"
 
 type SolarData struct {
 	Total_kwh float32    `json:"total_kwh"`
@@ -32,7 +35,7 @@ type SiteData struct {
 	Max      float64 `json:"max"`
 }
 
-func get_solar_data() (SolarData, error) {
+func get_solar_data(username string, password string, prometheusURL string) (SolarData, error) {
 	var sites []SiteData
 	now := time.Now()
 	//year, month, day := now.Date()
@@ -46,34 +49,34 @@ func get_solar_data() (SolarData, error) {
 	seconds_since_midnight := strconv.FormatInt(int64(seconds_since_midnight_int), 10) + "s"
 	//seconds_since_last_week := strconv.FormatInt(int64(seconds_since_last_week_int), 10) + "s"
 
-	//get daily statistics
-	increase_day, err := fetchPrometheusIncrease("solar_generation_meter", seconds_since_midnight)
+	//get last 365 days statistics
+	increase_year, err := fetchPrometheusIncrease(username, password, prometheusURL, generation_metric, "365d")
 	if err != nil {
 		log.Printf("Error fetching old meter readings: %v\n", err)
 		return SolarData{}, err
 	}
-	var day_total float64
+	var year_total float64
 
-	for _, site := range increase_day {
+	for _, site := range increase_year {
 		if len(sites) == 0 {
-			sites = append(sites, SiteData{Name: site.Metric.Site, Today: site.GetValue()})
-			day_total += site.GetValue()
+			sites = append(sites, SiteData{Name: site.Metric.Site, Last_365: site.GetValue()})
+			year_total += site.GetValue()
 		} else {
 			for i := range sites {
 				if sites[i].Name == site.Metric.Site {
-					sites[i].Today = site.GetValue()
-					day_total += site.GetValue()
+					sites[i].Last_365 = site.GetValue()
+					year_total += site.GetValue()
 					break
 				} else if i == len(sites)-1 {
-					sites = append(sites, SiteData{Name: site.Metric.Site, Today: site.GetValue()})
-					day_total += site.GetValue()
+					sites = append(sites, SiteData{Name: site.Metric.Site, Last_365: site.GetValue()})
+					year_total += site.GetValue()
 				}
 			}
 		}
 	}
 
 	//get weekly stistics
-	increase_week, err := fetchPrometheusIncrease("solar_generation_meter", "7d")
+	increase_week, err := fetchPrometheusIncrease(username, password, prometheusURL, generation_metric, "7d")
 	if err != nil {
 		log.Printf("Error fetching old meter readings: %v\n", err)
 		return SolarData{}, err
@@ -93,29 +96,30 @@ func get_solar_data() (SolarData, error) {
 		}
 	}
 
-	//get statistics for the last year
-	increase_year, err := fetchPrometheusIncrease("solar_generation_meter", "365d")
+	//get statistics for today
+	increase_day, err := fetchPrometheusIncrease(username, password, prometheusURL, generation_metric, seconds_since_midnight)
 	if err != nil {
 		log.Printf("Error fetching old meter readings: %v\n", err)
 		return SolarData{}, err
 	}
-	var year_total float64
+	var day_total float64
 
-	for _, site := range increase_year {
+	for _, site := range increase_day {
 		for i := range sites {
 			if sites[i].Name == site.Metric.Site {
-				sites[i].Last_365 = site.GetValue()
-				year_total += site.GetValue()
+				sites[i].Today = site.GetValue()
+				day_total += site.GetValue()
 				break
 			} else if i == len(sites)-1 {
-				sites = append(sites, SiteData{Name: site.Metric.Site, Last_365: site.GetValue()})
-				year_total += site.GetValue()
+				sites = append(sites, SiteData{Name: site.Metric.Site, Today: site.GetValue()})
+				day_total += site.GetValue()
 			}
 		}
 	}
 
 	//get max statistics
-	max_data, err := fetchPrometheusSnapshotData("max_over_time(solar_watts[1y])", "")
+	query := fmt.Sprintf("max_over_time(%s[1y])", actual_power_metric)
+	max_data, err := fetchPrometheusSnapshotData(username, password, prometheusURL, query, "")
 	if err != nil {
 		log.Printf("Error fetching current output: %v\n", err)
 		return SolarData{}, err
@@ -134,7 +138,7 @@ func get_solar_data() (SolarData, error) {
 	}
 
 	//get snapshot statistics
-	latest_data, err := fetchPrometheusSnapshotData("solar_watts", "")
+	latest_data, err := fetchPrometheusSnapshotData(username, password, prometheusURL, actual_power_metric, "")
 	if err != nil {
 		log.Printf("Error fetching current output: %v\n", err)
 		return SolarData{}, err
@@ -156,7 +160,8 @@ func get_solar_data() (SolarData, error) {
 	}
 
 	//all time data
-	all_time_data, err := fetchPrometheusVectorQuery("sum(solar_generation_meter)")
+	query = fmt.Sprintf("sum(last_over_time(%s[1y]))", generation_metric)
+	all_time_data, err := fetchPrometheusVectorQuery(username, password, prometheusURL, query)
 	if err != nil {
 		log.Printf("Error fetching current output: %v\n", err)
 		return SolarData{}, err
@@ -225,14 +230,20 @@ func (p PrometheusRangeData) GetValues() (return_values []float64) {
 	return return_values
 }
 
-func fetchPrometheusSnapshotData(metric string, age string) ([]PrometheusSnapshotData, error) {
+func fetchPrometheusSnapshotData(username string, password string, prometheusURL string, metric string, age string) ([]PrometheusSnapshotData, error) {
 	var url string
 	if age != "" {
 		url = fmt.Sprintf("%s?query=%s&offset=%s]", prometheusURL, metric, age)
 	} else {
 		url = fmt.Sprintf("%s?query=%s", prometheusURL, metric)
 	}
-	resp, err := http.Get(url)
+	req, err := http.NewRequest("GET", url, nil)
+	if err != nil {
+		return []PrometheusSnapshotData{}, err
+	}
+	req.SetBasicAuth(username, password)
+	client := &http.Client{}
+	resp, err := client.Do(req)
 	if err != nil {
 		return []PrometheusSnapshotData{}, err
 	}
@@ -250,9 +261,15 @@ func fetchPrometheusSnapshotData(metric string, age string) ([]PrometheusSnapsho
 	return promResp.Data.Result, nil
 }
 
-func fetchPrometheusQuery(query string) ([]PrometheusSnapshotData, error) {
+func fetchPrometheusQuery(username string, password string, prometheusURL string, query string) ([]PrometheusSnapshotData, error) {
 	url := fmt.Sprintf("%s?query=%s", prometheusURL, query)
-	resp, err := http.Get(url)
+	req, err := http.NewRequest("GET", url, nil)
+	if err != nil {
+		return []PrometheusSnapshotData{}, err
+	}
+	req.SetBasicAuth(username, password)
+	client := &http.Client{}
+	resp, err := client.Do(req)
 	if err != nil {
 		return []PrometheusSnapshotData{}, err
 	}
@@ -270,9 +287,15 @@ func fetchPrometheusQuery(query string) ([]PrometheusSnapshotData, error) {
 	return promResp.Data.Result, nil
 }
 
-func fetchPrometheusVectorQuery(query string) (PrometheusVectorData, error) {
+func fetchPrometheusVectorQuery(username string, password string, prometheusURL string, query string) (PrometheusVectorData, error) {
 	url := fmt.Sprintf("%s?query=%s", prometheusURL, query)
-	resp, err := http.Get(url)
+	req, err := http.NewRequest("GET", url, nil)
+	if err != nil {
+		return PrometheusVectorData{}, err
+	}
+	req.SetBasicAuth(username, password)
+	client := &http.Client{}
+	resp, err := client.Do(req)
 	if err != nil {
 		return PrometheusVectorData{}, err
 	}
@@ -294,9 +317,15 @@ func fetchPrometheusVectorQuery(query string) (PrometheusVectorData, error) {
 	return promResp.Data.Result[0], nil
 }
 
-func fetchPrometheusIncrease(metric string, period string) ([]PrometheusSnapshotData, error) {
+func fetchPrometheusIncrease(username string, password string, prometheusURL string, metric string, period string) ([]PrometheusSnapshotData, error) {
 	url := fmt.Sprintf("%s?query=increase(%s[%s])", prometheusURL, metric, period)
-	resp, err := http.Get(url)
+	req, err := http.NewRequest("GET", url, nil)
+	if err != nil {
+		return []PrometheusSnapshotData{}, err
+	}
+	req.SetBasicAuth(username, password)
+	client := &http.Client{}
+	resp, err := client.Do(req)
 	if err != nil {
 		return []PrometheusSnapshotData{}, err
 	}
@@ -314,12 +343,16 @@ func fetchPrometheusIncrease(metric string, period string) ([]PrometheusSnapshot
 	return promResp.Data.Result, nil
 }
 
-func fetchPrometheusDataRange(query, start, end, step string) ([]PrometheusRangeData, error) {
+func fetchPrometheusDataRange(username string, password string, prometheusURL string, query, start, end, step string) ([]PrometheusRangeData, error) {
 	// Build API request
 	url := fmt.Sprintf("%s_range?query=%s&start=%s&end=%s&step=%s", prometheusURL, query, start, end, step)
-
-	// Send HTTP request
-	resp, err := http.Get(url)
+	req, err := http.NewRequest("GET", url, nil)
+	if err != nil {
+		return []PrometheusRangeData{}, err
+	}
+	req.SetBasicAuth(username, password)
+	client := &http.Client{}
+	resp, err := client.Do(req)
 	if err != nil {
 		return []PrometheusRangeData{}, err
 	}
@@ -340,9 +373,15 @@ func fetchPrometheusDataRange(query, start, end, step string) ([]PrometheusRange
 	return promResp.Data.Result, nil
 }
 
-func fetchPrometheusRangeQuery(query string) ([]PrometheusRangeData, error) {
+func fetchPrometheusRangeQuery(username string, password string, prometheusURL string, query string) ([]PrometheusRangeData, error) {
 	url := fmt.Sprintf("%s?query=%s", prometheusURL, query)
-	resp, err := http.Get(url)
+	req, err := http.NewRequest("GET", url, nil)
+	if err != nil {
+		return []PrometheusRangeData{}, err
+	}
+	req.SetBasicAuth(username, password)
+	client := &http.Client{}
+	resp, err := client.Do(req)
 	if err != nil {
 		return []PrometheusRangeData{}, err
 	}
@@ -382,11 +421,17 @@ type PeriodData struct {
 	Values [][]interface{} `json:"values"`
 }
 
-func FetchTodaysGenerationData() (periodData PeriodData, err error) {
+func FetchTodaysGenerationData(username string, password string, prometheusURL string) (periodData PeriodData, err error) {
 	now := time.Now()
-	query := fmt.Sprintf("sum(avg_over_time(solar_watts[30m]))&start=%vZ&end=%vZ&step=1800", now.Format("2006-01-02T00:00:00"), now.Format("2006-01-02T15:04:05"))
+	query := fmt.Sprintf("sum(avg_over_time(%s[30m]))&start=%vZ&end=%vZ&step=1800", actual_power_metric, now.Format("2006-01-02T00:00:00"), now.Format("2006-01-02T15:04:05"))
 	url := fmt.Sprintf("%v_range?query=%v", prometheusURL, query)
-	resp, err := http.Get(url)
+	req, err := http.NewRequest("GET", url, nil)
+	if err != nil {
+		return PeriodData{}, err
+	}
+	req.SetBasicAuth(username, password)
+	client := &http.Client{}
+	resp, err := client.Do(req)
 	if err != nil {
 		return PeriodData{}, err
 	}
@@ -403,15 +448,19 @@ func FetchTodaysGenerationData() (periodData PeriodData, err error) {
 	if err != nil {
 		return PeriodData{}, err
 	}
-	return promResp.Data.Result[0], nil
+	if len(promResp.Data.Result) > 0 {
+		return promResp.Data.Result[0], nil
+	} else {
+		return PeriodData{}, fmt.Errorf("empty dataset for query:%s", query)
+	}
 }
 
-func FetchSitePeriodData(site string, numberOfDays int) (sitePeriodData SitePeriodData, err error) {
+func FetchSitePeriodData(username string, password string, prometheusURL string, site string, numberOfDays int) (sitePeriodData SitePeriodData, err error) {
 	var query1, query2, query3, query4, query5 string
 	sitePeriodData.Name = strings.ReplaceAll(site, "+", " ")
 	if site != "" {
-		query1 = fmt.Sprintf("solar_generation_meter{site=\"%s\"}", site)
-		query2 = fmt.Sprintf("solar_watts{site=\"%s\"}", site)
+		query1 = fmt.Sprintf("%s{purpose=\"solar\" site=\"%s\"}", generation_metric_name, site)
+		query2 = fmt.Sprintf("%s{purpose=\"solar\" site=\"%s\"}", actual_power_metric_name, site)
 		if numberOfDays < 1 {
 			numberOfDays = 1
 		}
@@ -426,13 +475,13 @@ func FetchSitePeriodData(site string, numberOfDays int) (sitePeriodData SitePeri
 		default:
 			resolution = "2h"
 		}
-		query3 = fmt.Sprintf("solar_watts{site=\"%s\"}[%vd:%s]", site, numberOfDays, resolution)
-		query4 = fmt.Sprintf("increase(solar_generation_meter{site=\"%s\"}[%vd])", site, numberOfDays)
-		query5 = fmt.Sprintf("max_over_time(solar_watts{site=\"%s\"}[%vd])", site, numberOfDays)
+		query3 = fmt.Sprintf("%s{purpose=\"solar\" site=\"%s\"}[%vd:%s]", actual_power_metric_name, site, numberOfDays, resolution)
+		query4 = fmt.Sprintf("increase(%s{purpose=\"solar\" site=\"%s\"}[%vd])", generation_metric_name, site, numberOfDays)
+		query5 = fmt.Sprintf("max_over_time(%s{purpose=\"solar\" site=\"%s\"}[%vd])", actual_power_metric_name, site, numberOfDays)
 	} else {
 		return SitePeriodData{}, errors.New("you must include a site name")
 	}
-	meter, err := fetchPrometheusQuery(query1)
+	meter, err := fetchPrometheusQuery(username, password, prometheusURL, query1)
 	if err != nil {
 		return sitePeriodData, err
 	}
@@ -441,25 +490,25 @@ func FetchSitePeriodData(site string, numberOfDays int) (sitePeriodData SitePeri
 	}
 	sitePeriodData.Meter = meter[0].GetValue()
 
-	current_generation, err := fetchPrometheusQuery(query2)
+	current_generation, err := fetchPrometheusQuery(username, password, prometheusURL, query2)
 	if err != nil {
 		return sitePeriodData, err
 	}
 	sitePeriodData.Current = current_generation[0].GetValue()
 
-	data, err := fetchPrometheusRangeQuery(query3)
+	data, err := fetchPrometheusRangeQuery(username, password, prometheusURL, query3)
 	if err != nil {
 		return sitePeriodData, err
 	}
 	sitePeriodData.Data = data[0].Values
 
-	period_generation, err := fetchPrometheusQuery(query4)
+	period_generation, err := fetchPrometheusQuery(username, password, prometheusURL, query4)
 	if err != nil {
 		return sitePeriodData, err
 	}
 	sitePeriodData.Period = period_generation[0].GetValue()
 
-	maximum, err := fetchPrometheusQuery(query5)
+	maximum, err := fetchPrometheusQuery(username, password, prometheusURL, query5)
 	if err != nil {
 		return sitePeriodData, err
 	}
@@ -468,10 +517,10 @@ func FetchSitePeriodData(site string, numberOfDays int) (sitePeriodData SitePeri
 	return
 }
 
-func FetchPeriodData(numberOfDays int) (sitePeriodData []SitePeriodData, err error) {
+func FetchPeriodData(username string, password string, prometheusURL string, numberOfDays int) (sitePeriodData []SitePeriodData, err error) {
 	var query1, query2, query3, query4, query5 string
-	query1 = fmt.Sprintf("solar_generation_meter")
-	query2 = fmt.Sprintf("solar_watts")
+	query1 = fmt.Sprintf("last_over_time(%s[1y])", generation_metric)
+	query2 = fmt.Sprintf("last_over_time(%s[1y])", actual_power_metric)
 	if numberOfDays < 1 {
 		numberOfDays = 1
 	}
@@ -486,11 +535,17 @@ func FetchPeriodData(numberOfDays int) (sitePeriodData []SitePeriodData, err err
 	default:
 		resolution = "2h"
 	}
-	query3 = fmt.Sprintf("solar_watts[%vd:%s]", numberOfDays, resolution)
-	query4 = fmt.Sprintf("increase(solar_generation_meter[%vd])", numberOfDays)
-	query5 = fmt.Sprintf("max_over_time(solar_watts[%vd])", numberOfDays)
+	query3 = fmt.Sprintf("%s[%vd:%s]", actual_power_metric, numberOfDays, resolution)
+	query4 = fmt.Sprintf("increase(%s[%vd])", generation_metric, numberOfDays)
+	query5 = fmt.Sprintf("max_over_time(%s[%vd])", actual_power_metric, numberOfDays)
 
-	meter, err := fetchPrometheusQuery(query1)
+	log.Print(query1)
+	log.Print(query2)
+	log.Print(query3)
+	log.Print(query4)
+	log.Print(query5)
+
+	meter, err := fetchPrometheusQuery(username, password, prometheusURL, query1)
 	if err != nil {
 		return sitePeriodData, err
 	}
@@ -502,7 +557,7 @@ func FetchPeriodData(numberOfDays int) (sitePeriodData []SitePeriodData, err err
 		sitePeriodData = append(sitePeriodData, siteData)
 	}
 
-	current_generation, err := fetchPrometheusQuery(query2)
+	current_generation, err := fetchPrometheusQuery(username, password, prometheusURL, query2)
 	if err != nil {
 		return sitePeriodData, err
 	}
@@ -516,7 +571,7 @@ func FetchPeriodData(numberOfDays int) (sitePeriodData []SitePeriodData, err err
 		}
 	}
 
-	data, err := fetchPrometheusRangeQuery(query3)
+	data, err := fetchPrometheusRangeQuery(username, password, prometheusURL, query3)
 	if err != nil {
 		return sitePeriodData, err
 	}
@@ -530,7 +585,7 @@ func FetchPeriodData(numberOfDays int) (sitePeriodData []SitePeriodData, err err
 		}
 	}
 
-	period_generation, err := fetchPrometheusQuery(query4)
+	period_generation, err := fetchPrometheusQuery(username, password, prometheusURL, query4)
 	if err != nil {
 		return sitePeriodData, err
 	}
@@ -544,7 +599,7 @@ func FetchPeriodData(numberOfDays int) (sitePeriodData []SitePeriodData, err err
 		}
 	}
 
-	maximum, err := fetchPrometheusQuery(query5)
+	maximum, err := fetchPrometheusQuery(username, password, prometheusURL, query5)
 	if err != nil {
 		return sitePeriodData, err
 	}

@@ -186,8 +186,8 @@ function drawAverageChart(){
 function drawSiteGraph(){ 
     if (document.hidden) return; //No need to draw the graph if the page isn't visible.
     const checkedbox=document.querySelector('[name="period"]:checked')
-    if(!checkedbox.disabled){
-        const period=checkedbox.value
+    if(!checkedbox?.disabled){
+        const period=checkedbox?.value
         //set labeling for graph according to length of the period
         let localeString={}
         if(period<=1){
@@ -255,6 +255,9 @@ function updateAggregated(){
 }
 
 function updateTable(){
+    if(liveData.sites===null){
+        return
+    }
     const selected = document.querySelector('input[name="sort"]:checked');
     let option="generation"
     if (selected) {
@@ -281,9 +284,37 @@ function updateTable(){
 }
 
 function updateSiteOverview() {
-    const selectedPeriod=document.querySelector("[name='period']:checked").value.toString()
+    const periodsWithData=[]
+    const keys=Object.keys(sitePeriodData)
+    keys.forEach(k=>{
+        if(sitePeriodData[k][0].data)
+        {
+            periodsWithData.push(k)
+        }
+    })
+    let firstAvaialble=null
+    document.querySelectorAll("[name='period']").forEach(input => {
+        if (!periodsWithData.includes(input.value)) {
+            input.disabled = true
+            input.checked=false
+            input.parentElement.classList.add("disabled")
+        } else {
+            input.disabled = false
+            input.parentElement.classList.remove("disabled")
+            if(!firstAvaialble){
+                firstAvaialble=input
+            }
+        }
+    })
+    let selectedPeriodCheckbox=document.querySelector("[name='period']:checked")
+    if (!selectedPeriodCheckbox){
+        selectedPeriodCheckbox=firstAvaialble
+        firstAvaialble.checked=true
+    }
+    const selectedPeriod=selectedPeriodCheckbox===null?"1":selectedPeriodCheckbox.value.toString()
     const selectedSites=Array.from(document.querySelectorAll(".dropdown-option:has([type=checkbox]:checked)")).map(s=>s.textContent)
     const dataForPeriod=sitePeriodData[selectedPeriod.toString()][0].data;
+    
     const lengthOfData=dataForPeriod.length;
     const lastDataPoint=dataForPeriod[lengthOfData-1];
     const ageOfData=Date.now()-lastDataPoint[0];
@@ -348,12 +379,14 @@ document.addEventListener("DOMContentLoaded",()=>{
         }
         else{ //if first message
             updateTimer.start()
-            const sortedSites=liveData['sites'].sort((a,b)=>b.snapshot-a.snapshot)
-            sortedSites.forEach((site,i) => {
-                sites_carousel.append(createSiteCard(site))
-                siteSelection.append(createSiteSelector(site.name,letters[i]))
-                addBullet(glide_carousel)
-            });
+            if(liveData['sites']?.length>0){
+                const sortedSites=liveData['sites'].sort((a,b)=>b.snapshot-a.snapshot)
+                sortedSites.forEach((site,i) => {
+                    sites_carousel.append(createSiteCard(site))
+                    siteSelection.append(createSiteSelector(site.name,letters[i]))
+                    addBullet(glide_carousel)
+                });
+            }
             new Glide('.glide',config_carousel).mount()
             const cards=document.querySelectorAll('.site-card span.name').forEach(e=>{
                 e.addEventListener('click',handleCardClick)
@@ -484,11 +517,15 @@ function fetchOnePeriodData(period){
     const address=`/site/all/${period}`
     fetch(address).then((res)=>{
         res.json().then((data3)=>{
-            data3.forEach(d3=>{
-                d3.data.forEach(d=>d[0]*=1000)
-            })
-            sitePeriodData[period.toString()]=data3;
-            drawSiteGraph();
+            if(data3.length>0){
+                data3.forEach(d3=>{
+                    if(d3.data){
+                        d3.data.forEach(d=>d[0]*=1000)
+                    }
+                })
+                sitePeriodData[period.toString()]=data3;
+                drawSiteGraph();
+            }
         })
     })
 }
@@ -497,14 +534,18 @@ function fetchAllPeriodData(periodIndex){
     const address=`/site/all/${periods[periodIndex]}`
     fetch(address).then((res)=>{
         res.json().then((data3)=>{
-            data3.forEach(d3=>{
-                d3.data.forEach(d=>d[0]*=1000)
-            })
-            sitePeriodData[periods[periodIndex].toString()]=data3;
-            document.querySelector(`[name='period'][value='${periods[periodIndex]}']`).disabled=false;
-            periodIndex++;
-            if(periodIndex<periods.length){
-                fetchAllPeriodData(periodIndex)
+            if(data3.length>0){
+                data3.forEach(d3=>{
+                    if(d3.data){
+                        d3.data.forEach(d=>d[0]*=1000)
+                    }
+                })
+                sitePeriodData[periods[periodIndex].toString()]=data3;
+                document.querySelector(`[name='period'][value='${periods[periodIndex]}']`).disabled=false;
+                periodIndex++;
+                if(periodIndex<periods.length){
+                    fetchAllPeriodData(periodIndex)
+                }
             }
         })
     })
@@ -513,17 +554,19 @@ function fetchAllPeriodData(periodIndex){
 function fetchCombinedSolarData(){
     fetch("/site/all").then((res)=>{
         res.json().then((data3)=>{
-            combinedSolarData.push(...data3.values.map(r=>{
-                return{
-                    x:referenceDay(r[0]*1000).valueOf()-(15*60*1000),//Prometheus uses seconds so convert to milliseconds for js, also move the data point to the middle of the time period it represents
-                    y:parseFloat(r[1]/1000000)//the supplied value is in watts, convert to MW for the graph
-                }
-            }))
-            //move the most recent point to the appropriate time on the graph
-            const zero=combinedSolarData.getRecent(1).x+(15*60*1000)
-            const lastAveragedPoint=zero+(referenceDay().valueOf()-zero)/2
-            combinedSolarData.editRecent(0,{x:lastAveragedPoint})
-            drawAverageChart()
+            if(data3.values?.length>0){
+                combinedSolarData.push(...data3.values.map(r=>{
+                    return{
+                        x:referenceDay(r[0]*1000).valueOf()-(15*60*1000),//Prometheus uses seconds so convert to milliseconds for js, also move the data point to the middle of the time period it represents
+                        y:parseFloat(r[1]/1000000)//the supplied value is in watts, convert to MW for the graph
+                    }
+                }))
+                //move the most recent point to the appropriate time on the graph
+                const zero=combinedSolarData.getRecent(1).x+(15*60*1000)
+                const lastAveragedPoint=zero+(referenceDay().valueOf()-zero)/2
+                combinedSolarData.editRecent(0,{x:lastAveragedPoint})
+                drawAverageChart()
+            }
         })
     })
 }

@@ -9,6 +9,7 @@ import (
 	"os"
 	"regexp"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/labstack/echo/v4"
@@ -27,6 +28,25 @@ func main() {
 		host_env = "localhost"
 	}
 	host := flag.String("host", host_env, "Host to listen on")
+
+	username_env := os.Getenv("GRIDWATCH_USERNAME")
+	if username_env == "" {
+		username_env = "admin"
+	}
+	username := flag.String("username", username_env, "Username for Prometheus Server")
+
+	password_env := os.Getenv("GRIDWATCH_PASSWORD")
+	if password_env == "" {
+		password_env = "password"
+	}
+	password := flag.String("password", password_env, "Password for Prometheus Server")
+
+	prom_url_env := os.Getenv("GRIDWATCH_PROM_URL")
+	if prom_url_env == "" {
+		prom_url_env = "http://localhost:9090"
+	}
+	prom_url := flag.String("prometheus", prom_url_env, "URL for Prometheus Server")
+
 	flag.Parse()
 
 	e := echo.New()
@@ -46,7 +66,7 @@ func main() {
 		w.Header().Set("Access-Control-Allow-Origin", *host)
 
 		send := func() error {
-			solarData, err := get_solar_data()
+			solarData, err := get_solar_data(*username, *password, *prom_url)
 			if err != nil {
 				log.Print("Error:", err)
 				return err
@@ -105,7 +125,7 @@ func main() {
 		}
 
 		if siteName == "all" {
-			site_data, err := FetchPeriodData(int(period))
+			site_data, err := FetchPeriodData(*username, *password, *prom_url, int(period))
 			if err != nil {
 				log.Print("Error: ", err)
 				return c.JSON(http.StatusBadGateway, map[string]string{"message": "bad query"})
@@ -113,7 +133,7 @@ func main() {
 
 			return c.JSON(http.StatusOK, site_data)
 		} else {
-			site_data, err := FetchSitePeriodData(siteName, int(period))
+			site_data, err := FetchSitePeriodData(*username, *password, *prom_url, siteName, int(period))
 			if err != nil {
 				log.Print("Error: ", err)
 				return c.JSON(http.StatusBadGateway, map[string]string{"message": "bad query"})
@@ -127,8 +147,11 @@ func main() {
 		w := c.Response()
 		w.Header().Set("Access-Control-Allow-Origin", *host)
 
-		site_data, err := FetchTodaysGenerationData()
+		site_data, err := FetchTodaysGenerationData(*username, *password, *prom_url)
 		if err != nil {
+			if strings.Contains(err.Error(), "empty dataset") {
+				return c.JSON(http.StatusOK, PeriodData{})
+			}
 			log.Print("Error: ", err)
 			return c.JSON(http.StatusBadGateway, map[string]string{"message": "bad query"})
 		}
