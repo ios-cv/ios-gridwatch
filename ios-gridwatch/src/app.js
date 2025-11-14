@@ -348,7 +348,7 @@ function updateSiteOverview() {
             }
         }
     })
-    generationInPeriod.textContent=formatWatts(generation_in_period,true)
+    generationInPeriod.textContent=formatWatts(generation_in_period*1000,true)
     bestProduction.textContent=`${bestSite} with ${formatWatts(highest)}`
     drawSiteGraph()
 }
