@@ -14,6 +14,7 @@ import { server } from "./config.js"
 let liveData={}
 const sitePeriodData={}
 const periods=[1,7,31,365]
+const periodExpectedGaps=[60000,15*60000,30*60000,120*60000]
 const total=document.getElementById("total")
 const daily=document.getElementById("daily")
 const week=document.getElementById("week")
@@ -521,7 +522,45 @@ function fetchOnePeriodData(period){
             if(data3.length>0){
                 data3.forEach(d3=>{
                     if(d3.data){
-                        d3.data.forEach(d=>d[0]*=1000)
+                        const periodIndex=periods.indexOf(period)
+                        if(periodIndex<0)periodIndex=periodExpectedGaps.length-1
+                        const BIG_GAP = periodExpectedGaps[periodIndex]*10;
+
+                        // New array so we don't mutate while iterating
+                        let filled = [];
+
+                        //check 
+                        const first=d3.data[0]
+                        first[0]*=1000 //convert seconds to ms
+                        const now=Date.now().valueOf()
+                        const startOfPeriod=now-(86400000*periods[periodIndex]-BIG_GAP/5)
+                        if(first[0]>oneYearAgo){
+                            filled.push([oneYearAgo,0])
+                            filled.push([first[0]-1,0])
+                        }
+                        filled.push(first);
+
+                        let last = d3.data[0];
+
+                        for (let i = 1; i < d3.data.length; i++) {
+                            const curr = d3.data[i];
+                        
+                            const lastTime = last[0]*1000;
+                            const currTime = curr[0]*1000;
+
+                            const gapSize=currTime - lastTime
+                            
+                            if (gapSize > BIG_GAP) {
+                                filled.push([lastTime + 1,0]);
+                                filled.push([currTime - 1,0]);
+                            }
+
+                            filled.push([currTime,curr[1]]);
+
+                            last = curr;
+                        }
+
+                        d3.data = filled;
                     }
                 })
                 sitePeriodData[period.toString()]=data3;
@@ -538,7 +577,43 @@ function fetchAllPeriodData(periodIndex){
             if(data3.length>0){
                 data3.forEach(d3=>{
                     if(d3.data){
-                        d3.data.forEach(d=>d[0]*=1000)
+                        const BIG_GAP = periodExpectedGaps[periodIndex]*10;
+
+                        // New array so we don't mutate while iterating
+                        let filled = [];
+
+                        //check 
+                        const first=d3.data[0]
+                        first[0]*=1000 //convert seconds to ms
+                        const now=Date.now().valueOf()
+                        const startOfPeriod=now-(86400000*periods[periodIndex]-BIG_GAP/5)
+                        if(first[0]>startOfPeriod){
+                            filled.push([startOfPeriod,0])
+                            filled.push([first[0]-1,0])
+                        }
+                        filled.push(first);
+
+                        let last = d3.data[0];
+
+                        for (let i = 1; i < d3.data.length; i++) {
+                            const curr = d3.data[i];
+                        
+                            const lastTime = last[0]*1000;
+                            const currTime = curr[0]*1000;
+
+                            const gapSize=currTime - lastTime
+                            
+                            if (gapSize > BIG_GAP) {
+                                filled.push([lastTime + 1,0]);
+                                filled.push([currTime - 1,0]);
+                            }
+
+                            filled.push([currTime,curr[1]]);
+
+                            last = curr;
+                        }
+
+                        d3.data = filled;
                     }
                 })
                 sitePeriodData[periods[periodIndex].toString()]=data3;
