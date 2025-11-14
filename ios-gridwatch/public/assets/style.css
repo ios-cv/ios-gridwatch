@@ -520,6 +520,10 @@ td:nth-child(5){
 }
 #meaning p{
     margin:1rem 0;
+    & a{
+       color:inherit;
+       font-weight: bold; 
+    }
 }
 .ct-vertical{
     font-size:0.7rem;
