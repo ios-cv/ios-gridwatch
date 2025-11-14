@@ -9,6 +9,7 @@ import { twoSTDsBelow } from "./twoSTDsBelow"
 import { roundUpToQuarterSignificant } from "./mathematicalFunctions"
 import { initDropdown } from "./dropdown"
 import { Float64RingBuffer } from "./ringBuffer"
+import { server } from "./config.js"
 
 let liveData={}
 const sitePeriodData={}
@@ -353,7 +354,7 @@ function updateSiteOverview() {
 
 //EVENT LISTENERS
 document.addEventListener("DOMContentLoaded",()=>{
-    const eventSource=new EventSource("/sse")
+    const eventSource=new EventSource(`${server}/sse`)
 
     //MAIN UPDATE EVENT
     eventSource.addEventListener("message",(e)=>{
@@ -514,7 +515,7 @@ function handleCardClick(e){
 
 //Fetch Functions
 function fetchOnePeriodData(period){
-    const address=`/site/all/${period}`
+    const address=`${server}/site/all/${period}`
     fetch(address).then((res)=>{
         res.json().then((data3)=>{
             if(data3.length>0){
@@ -531,7 +532,7 @@ function fetchOnePeriodData(period){
 }
 
 function fetchAllPeriodData(periodIndex){
-    const address=`/site/all/${periods[periodIndex]}`
+    const address=`${server}/site/all/${periods[periodIndex]}`
     fetch(address).then((res)=>{
         res.json().then((data3)=>{
             if(data3.length>0){
@@ -552,7 +553,7 @@ function fetchAllPeriodData(periodIndex){
 }
 
 function fetchCombinedSolarData(){
-    fetch("/site/all").then((res)=>{
+    fetch(`${server}/site/all`).then((res)=>{
         res.json().then((data3)=>{
             if(data3.values?.length>0){
                 combinedSolarData.push(...data3.values.map(r=>{

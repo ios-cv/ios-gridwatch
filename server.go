@@ -52,10 +52,6 @@ func main() {
 	e := echo.New()
 
 	e.Use(middleware.Recover())
-	e.Static("/imgs", "ios-gridwatch/public/imgs")
-	e.Static("/assets", "ios-gridwatch/dist/assets")
-	e.Static("/", "ios-gridwatch/src/")
-	e.File("/", "ios-gridwatch/dist/index.html")
 
 	e.GET("/sse", func(c echo.Context) error {
 		log.Printf("SSE client connected, ip:%v", c.RealIP())
@@ -63,7 +59,7 @@ func main() {
 		w.Header().Set("Content-Type", "text/event-stream")
 		w.Header().Set("Cache-Control", "no-cache")
 		w.Header().Set("Connection", "keep-alive")
-		w.Header().Set("Access-Control-Allow-Origin", *host)
+		w.Header().Set("Access-Control-Allow-Origin", "*")
 
 		send := func() error {
 			solarData, err := get_solar_data(*username, *password, *prom_url)
@@ -117,7 +113,7 @@ func main() {
 		}
 		period, err := strconv.ParseInt(c.Param("period"), 10, 64)
 		w := c.Response()
-		w.Header().Set("Access-Control-Allow-Origin", *host)
+		w.Header().Set("Access-Control-Allow-Origin", "*")
 
 		if err != nil {
 			log.Print("Error: ", err)
@@ -145,7 +141,7 @@ func main() {
 
 	e.GET("/site/all", func(c echo.Context) error {
 		w := c.Response()
-		w.Header().Set("Access-Control-Allow-Origin", *host)
+		w.Header().Set("Access-Control-Allow-Origin", "*")
 
 		site_data, err := FetchTodaysGenerationData(*username, *password, *prom_url)
 		if err != nil {

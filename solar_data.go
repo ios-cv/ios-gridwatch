@@ -311,7 +311,6 @@ func fetchPrometheusVectorQuery(username string, password string, prometheusURL 
 		return PrometheusVectorData{}, err
 	}
 	if len(promResp.Data.Result) == 0 {
-		log.Print(url)
 		return PrometheusVectorData{}, errors.New("error with prometheus query")
 	}
 	return promResp.Data.Result[0], nil
@@ -538,12 +537,6 @@ func FetchPeriodData(username string, password string, prometheusURL string, num
 	query3 = fmt.Sprintf("%s[%vd:%s]", actual_power_metric, numberOfDays, resolution)
 	query4 = fmt.Sprintf("increase(%s[%vd])", generation_metric, numberOfDays)
 	query5 = fmt.Sprintf("max_over_time(%s[%vd])", actual_power_metric, numberOfDays)
-
-	log.Print(query1)
-	log.Print(query2)
-	log.Print(query3)
-	log.Print(query4)
-	log.Print(query5)
 
 	meter, err := fetchPrometheusQuery(username, password, prometheusURL, query1)
 	if err != nil {
