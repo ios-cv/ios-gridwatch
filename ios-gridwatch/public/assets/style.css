@@ -138,11 +138,7 @@ h1{
     margin-bottom: 1rem;
     color:black;
 }
-.default_image{
-    background-image: url("../imgs/Canopy.svg");
-    background-size: cover;
-}
-.site-card>.default_image, .site-card img{
+.site-card img{
     width: 20dvw;
 }
 .glide__arrow--right{
