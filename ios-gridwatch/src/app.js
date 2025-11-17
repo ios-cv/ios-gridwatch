@@ -456,10 +456,15 @@ function createSiteCard(siteData){
     const img=document.createElement('img')
     const name=document.createElement('span')
     name.classList.add('name')
-    img.src=`/imgs/${siteData.name}.png`
-    img.addEventListener('error',()=>{
-        img.src="/imgs/Canopy.png"
-    })
+
+    const picture=document.createElement("picture")
+    const source=document.createElement("source")
+    const srcToTry=`/imgs/${siteData.name}.png`
+    srcToTry.replaceAll(" ","%20")
+    source.setAttributeNS(null,"src",srcToTry)
+    source.setAttributeNS(null,"type","image/png")
+    img.src=`/imgs/Canopy.svg`
+
     name.textContent=siteData.name
     name.setAttributeNS(null,'data-name',siteData.name)
     const span=document.createElement('span')
@@ -467,7 +472,8 @@ function createSiteCard(siteData){
     const spacelessName=siteData.name.replaceAll(" ","")
     span.classList.add(`${spacelessName}-snapshot`)
     span.textContent=formatWatts(siteData.snapshot)
-    li.append(img,name,span)
+    picture.append(source,img)
+    li.append(picture,name,span)
     return li
 }
 
