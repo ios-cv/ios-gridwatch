@@ -458,7 +458,7 @@ function createSiteCard(siteData){
     name.classList.add('name')
     const div=document.createElement('div')
     div.classList.add('default_image')
-    img.src="/imgs/Canopy.svg"
+    img.src=`/imgs/${siteData.name}.png`
     name.textContent=siteData.name
     name.setAttributeNS(null,'data-name',siteData.name)
     const span=document.createElement('span')
