@@ -1,1 +1,1 @@
-export const server="http://localhost:8003";
+export const server="https://home.harrylegg.co.uk/solar";
