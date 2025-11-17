@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <link rel="icon" href="./imgs/favicon.svg" type="image/x-icon">
+    <link rel="stylesheet" href="/assets/reset.css">
+    <link rel="stylesheet" href="/assets/glide.core.min.css">
+    <link rel="stylesheet" href="/assets/glide.theme.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/chartist@1.3.1/dist/index.min.css">
+    <link rel="stylesheet" href="/assets/dropdown.css">
+    <link rel="stylesheet" href="/assets/style.css">
+    <script src="/assets/glide.min.js"></script>
+    <script src="/assets/dragables.js" defer></script>
+    <title>Live Scilly Electricity</title>
+  <script type="module" crossorigin src="/assets/index-DuZSyQ7_.js"></script>
+</head>
+<body>
+    <span class="subtleOverlayOption" id="timeToUpdateOption">59.9</span>
+    <h1>Live Scilly Electricity Generation</h1>
+    <div class="flex">
+        <div id="totals" class="card">
+            <div class="layered">
+                <img src="./imgs/favicon.svg" alt="sunshine">
+                <span class="subtleOverlay" id="timeToUpdate" style="left: calc(50% - 0.9rem);top: calc(50% - 0.5rem);">59.9</span>
+            </div>
+            <ul class="totals">
+                <li>
+                    <label for="current"><h2>Live Generation</h3></label>
+                    <span id="current" class="highlight-output"></span>
+                </li>
+                <li>
+                    <label for="daily"><h3>Today</h3></label>
+                    <div class="arrow"><div class="arrow-body"></div><div class="arrow-head"></div></div>
+                    <span id="daily" class="output"></span>
+                </li>
+                <li>
+                    <label for="week"><h3>Last 7 Days</h3></label>
+                    <div class="arrow"><div class="arrow-body"></div><div class="arrow-head"></div></div>
+                    <span id="week" class="output"></span>
+                </li>
+                <li>
+                    <label for="year"><h3>Last 365 Days</h3></label>
+                    <div class="arrow"><div class="arrow-body"></div><div class="arrow-head"></div></div>
+                    <span id="year" class="output"></span>
+                </li>
+                <li>
+                    <label for="total"><h2>Total Solar</h3></label>
+                    <span id="total" class="highlight-output"></span>
+                </li>
+                <li>
+                    <a class="explain" id="explainTotalsLink">What do these numbers mean?</a>
+                </li>
+            </ul>
+        </div>
+        <section id="explainTotals" class="display-none">
+            <div class="title-bar">
+                Explanation of Stats
+                <svg xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 64 40"
+                    width="24" height="24"
+                    role="img" aria-hidden="true" focusable="false">
+                <title>Grip dots</title>
+                <g fill="currentColor">
+                    <circle cx="12" cy="10" r="4"/>
+                    <circle cx="32" cy="10" r="4"/>
+                    <circle cx="52" cy="10" r="4"/>
+
+                    <circle cx="12" cy="30" r="4"/>
+                    <circle cx="32" cy="30" r="4"/>
+                    <circle cx="52" cy="30" r="4"/>
+                </g>
+                </svg>
+                <button id="closeExplainTotals">X</button>
+            </div>
+            <ul>
+                <li><span class="explain-point">Live Generation:</span> How much power is being generated right now.</li>
+                <li><span class="explain-point">Today:</span> How much energy has been produced since midnight, this is the sum of all increases of the generation meters.</li>
+                <li><span class="explain-point">Last 7 Days:</span> How much energy has been produced in the last 7 &times; 24 hours.</li>
+                <li><span class="explain-point">Last 365 Days:</span> How much energy has been produced in the last 365 &times; 24 hours.</li>
+                <li><span class="explain-point">Total Solar:</span> How much energy has been produced by all the monitored solar sites in their lifetimes.</li>
+                <li><span class="explain-point">ETA:</span> The number inside the sun shows a count down to the estimated time of the next update in seconds.</li>
+                <li><span class="explain-point">W (watts):</span> Watts are a measure of power. A typical energy efficient lightbulb uses 4-10 watts.</li>
+                <li><span class="explain-point">kW (kilowatts):</span> 1,000 watts. An electric kettle usually requires 3kW.</li>
+                <li><span class="explain-point">MW (megawatts):</span> 1,000 kilowatts or 1,000,000 watts. Typical demand for all of Scilly is around 2 megawatts.</li>
+                <li><span class="explain-point">Wh (watt hours):</span> Watt hours are a measure of supplied power. 1 watt hour can power a 4 watt lightbulb for 1 quarter (1/4) of an hour (15 minutes).</li>
+                <li><span class="explain-point">kWh (kilowatt hours):</span> Kilowatt hours are the standard unit of supplied electricity. An average UK house hold with electric heating uses approximately 4,000kWh annually.</li>
+                <li><span class="explain-point">MWh (megawatt hours):</span> 1,000 kilowatt hours. A consistent demand of 2MW for a day is 48 megawatt hours.</li>
+            </ul>
+        </section>
+        <div id="rank" class="column card">
+            <table>
+                <thead>
+                    <th>Rank</th>
+                    <th>Site</th>
+                    <th><label for="generationSort">Generation</label><input type="radio" id="generationSort" name="sort" value="generation" checked="checked"></th>
+                    <th><label for="meterSort">Meter</label><input type="radio" id="meterSort" name="sort" value="meter"></th>
+                    <th><label for="maxSort">% of max</label><input type="radio" id="maxSort" name="sort" value="max"></th>
+                </thead>
+                <tbody></tbody>
+            </table>
+            <a class="explain" id="explainRanksLink">What do these numbers mean?</a>
+        </div>
+        <section id="explainRanks" class="display-none">
+            <div class="title-bar">
+                Explanation of Rankings Table
+                <svg xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 64 40"
+                    width="24" height="24"
+                    role="img" aria-hidden="true" focusable="false">
+                <title>Grip dots</title>
+                <g fill="currentColor">
+                    <circle cx="12" cy="10" r="4"/>
+                    <circle cx="32" cy="10" r="4"/>
+                    <circle cx="52" cy="10" r="4"/>
+
+                    <circle cx="12" cy="30" r="4"/>
+                    <circle cx="32" cy="30" r="4"/>
+                    <circle cx="52" cy="30" r="4"/>
+                </g>
+                </svg>
+                <button id="closeExplainRanks">X</button>
+            </div>
+            <ul>
+                <li><span class="explain-point">Generation:</span> How much power is being generated right now at that site.</li>
+                <li><span class="explain-point">Meter:</span> The current meter reading at that site.</li>
+                <li><span class="explain-point">&percnt; of max:</span> How close the site is to its highest output in the last year. Some sites are limited by their inverter so may regularly reach their peak, it is not cost effective to install a larger inverter.</li>
+                <li><span class="explain-point">Sorting:</span> The heading in <b>bold</b> denotes which column the data is currently sorted by. Click a heading to sort the data by it.</li>
+                <li><span class="explain-point">W (watts):</span> Watts are a measure of power. A typical energy efficient lightbulb uses 4-10 watts.</li>
+                <li><span class="explain-point">kW (kilowatts):</span> 1,000 watts. An electric kettle usually requires 3kW.</li>
+                <li><span class="explain-point">MW (megawatts):</span> 1,000 kilowatts or 1,000,000 watts. Typical demand for all of Scilly is around 2 megawatts.</li>
+                <li><span class="explain-point">Wh (watt hours):</span> Watt hours are a measure of supplied power. 1 watt hour can power a 4 watt lightbulb for 1 quarter (1/4) of an hour (15 minutes).</li>
+                <li><span class="explain-point">kWh (kilowatt hours):</span> Kilowatt hours are the standard unit of supplied electricity. An average UK house hold with electric heating uses approximately 4,000kWh annually.</li>
+                <li><span class="explain-point">MWh (megawatt hours):</span> 1,000 kilowatt hours. A consistent demand of 2MW for a day is 48 megawatt hours.</li>
+            </ul>
+        </section>
+        <div class="glide">
+            <div class="glide__track" data-glide-el="track">
+                <ul class="glide__slides" id="sites">
+
+                </ul>
+            </div>
+            <div data-glide-el="controls">
+                <button class="glide__arrow glide__arrow--left" data-glide-dir="<">&lt;</button>
+                <button class="glide__arrow glide__arrow--right" data-glide-dir=">">&gt;</button>
+            </div>
+            <div class="glide__bullets" data-glide-el="controls[nav]">
+
+            </div>
+        </div>
+    </div>
+    <section id="siteOverview" class="display-none">
+        <div class="title-bar">
+            Site Graphs
+            <svg xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 64 40"
+                width="24" height="24"
+                role="img" aria-hidden="true" focusable="false">
+            <title>Grip dots</title>
+            <g fill="currentColor">
+                <circle cx="12" cy="10" r="4"/>
+                <circle cx="32" cy="10" r="4"/>
+                <circle cx="52" cy="10" r="4"/>
+
+                <circle cx="12" cy="30" r="4"/>
+                <circle cx="32" cy="30" r="4"/>
+                <circle cx="52" cy="30" r="4"/>
+            </g>
+            </svg>
+            <button id="closeSiteOverview">X</button>
+        </div>
+        <div class="dropdown" data-control="checkbox-dropdown">
+            <label class="dropdown-label">Select sites to display on graph</label>
+            <div class="dropdown-list" id="siteSelection">
+                <a href="#" data-toggle="check-all" class="dropdown-option" id="selectAllSites">
+                    Check All  
+                  </a>
+            </div>
+        </div>
+        <div class="tab-section">
+            <ul class="tabs">
+                <li><label class="periodSelector" for="periodDay">Day</label><input id="periodDay" type="radio" name="period" value="1" checked="checked" disabled></li>
+                <li><label class="periodSelector" for="periodWeek">Week</label><input id="periodWeek" type="radio" name="period" value="7" disabled></li>
+                <li><label class="periodSelector" for="periodMonth">Month</label><input id="periodMonth" type="radio" name="period" value="31" disabled></li>
+                <li><label class="periodSelector" for="periodYear">Year</label><input id="periodYear" type="radio" name="period" value="365" disabled></li>
+            </ul>
+            <div class="tab-area">
+                <p>Total energy generated during this period:<span id="generationInPeriod"></span>. The best output was <span id="bestProduction"></span>.</p>
+                <div id="siteGraph"></div>
+            </div>
+        </div>
+    </section>
+    <div class="column">
+        <h2 class="graph-title">Average (Mean) Demand For Electricity On Scilly Throughout The Day</h2>
+        <div id="demandGraph"></div>
+        <ul id="demandGraphLegend">
+            <li class="series ct-series-a"><label for="legend_average">Mean Demand</label><div class="block"></div><input type="checkbox" name="legend" value="average" id="legend_average" checked></li>
+            <li class="series ct-series-b"><label for="legend_end">End of Averaged Generation</label><div class="block"></div><input type="checkbox" name="legend" value="end" id="legend_end" checked></li>
+            <li class="series ct-series-d"><label for="legend_solar">Solar Generation</label><div class="block"></div><input type="checkbox" name="legend" id="legend_solar" value="solar" checked></li>
+            <li class="series ct-series-c"><label for="legend_now">Current Time</label><div class="block"></div><input type="checkbox" name="legend" value="now" id="legend_now" checked></li>
+            <li class="series ct-series-i"><label for="legend_std">Two Standard Deviations From Mean</label><div class="block"></div><input type="checkbox" name="legend" id="legend_std" value="std"></li>
+            <li class="series ct-series-e"><label for="legend_summer">Mean Demand Summer</label><div class="block"></div><input type="checkbox" name="legend" id="legend_summer" value="summer"></li>
+            <li class="series ct-series-f"><label for="legend_winter">Mean Demand Winter</label><div class="block"></div><input type="checkbox" name="legend" id="legend_winter" value="winter"></li>
+            <li class="series ct-series-g"><label for="legend_min">Minimum Demand</label><div class="block"></div><input type="checkbox" name="legend" id="legend_min" value="min"></li>
+            <li class="series ct-series-h"><label for="legend_max">Maximum Demand</label><div class="block"></div><input type="checkbox" name="legend" id="legend_max" value="max"></li>
+        </ul>
+        <div id="meaning">
+            <p>The demand on an average day at <span id="time"></span> is <span id="averageDemand"></span>s, current solar generation is meeting <span id="percentOfDemand"></span>% of this.</p>
+            <p>Mean demand is calculated using National Grid Energy Distribution data (<a href="https://connecteddata.nationalgrid.co.uk/dataset/south-west-primary-transformer-flows/resource/e44fcbeb-cc50-4789-8134-3404c414a965">Isles of Scilly 11kV transformer flows (login required)</a> March 2019-April 2024). Data has been removed for dates between 23rd March 2020 - 3rd July 2020 inclusive as COVID-19 lock downs mean this is not representative of typical data. Other lockdowns did not impact usage noticably. For the purpose of energy usage on the Islands summer is defined as 1 May - 1 November.</p>
+        </div>
+    </div>
+    <section class="footer column">
+        <a href="https://www.ioscv.co.uk" target="_blank"><img src="imgs/IOSCV logo.png" alt="Isles of Scilly Community Venture" /></a>
+        &copy;2025 Isles of Scilly Community Venture<br>
+        <a href="https://commercial.nationalgrid.co.uk/open-data-licence">Supported by NGED Open Data</a>
+    </section>
+</body>
+</html>
