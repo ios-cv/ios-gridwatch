@@ -214,6 +214,9 @@ h1{
     border:1px solid black;
     border-top: none;
 }
+.disabled{
+    color:white;
+}
 
 .ct-point{
     stroke-width:0px;
@@ -517,6 +520,10 @@ td:nth-child(5){
 }
 #meaning p{
     margin:1rem 0;
+    & a{
+       color:inherit;
+       font-weight: bold; 
+    }
 }
 .ct-vertical{
     font-size:0.7rem;
