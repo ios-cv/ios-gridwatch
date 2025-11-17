@@ -199,6 +199,9 @@ function drawSiteGraph(){
         }else if(period<=7){
             localeString.weekday='short'
             localeString.day='numeric'
+        }else if(period<=31){
+            localeString.day='numeric'
+            localeString.month='short'
         }else{
             localeString.day='numeric'
             localeString.month='short'
@@ -453,9 +456,8 @@ function createSiteCard(siteData){
     const img=document.createElement('img')
     const name=document.createElement('span')
     name.classList.add('name')
-    const obj=document.createElement('object')
-    obj.setAttribute("data",`/imgs/${siteData.name}.png`)
-    obj.type="image/png"
+    const div=document.createElement('div')
+    div.classList.add('default_image')
     img.src="/imgs/Canopy.svg"
     name.textContent=siteData.name
     name.setAttributeNS(null,'data-name',siteData.name)
@@ -464,8 +466,8 @@ function createSiteCard(siteData){
     const spacelessName=siteData.name.replaceAll(" ","")
     span.classList.add(`${spacelessName}-snapshot`)
     span.textContent=formatWatts(siteData.snapshot)
-    obj.append(img)
-    li.append(obj,name,span)
+    div.append(img)
+    li.append(div,name,span)
     return li
 }
 
