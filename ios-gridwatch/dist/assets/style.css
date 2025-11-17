@@ -139,9 +139,9 @@ h1{
     color:black;
 }
 .default_image{
-  height:20dvw;
-  background-image:"../imgs/Canopy.svg";
-  background-size:cover;
+    height:20dvw;
+    background-image: url("../imgs/Canopy.svg");
+    background-size: cover;
 }
 .site-card>.default_image, .site-card img{
     width: 20dvw;
