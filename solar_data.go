@@ -474,7 +474,7 @@ func FetchSitePeriodData(username string, password string, prometheusURL string,
 		default:
 			resolution = "24h"
 		}
-		query3 = fmt.Sprintf("%s{purpose=\"solar\" site=\"%s\"}[%vd:%s]", actual_power_metric_name, site, numberOfDays, resolution)
+		query3 = fmt.Sprintf("avg_over_time(%s{purpose=\"solar\" site=\"%s\"}[%s])[%vd:%s]", actual_power_metric_name, site, resolution, numberOfDays, resolution)
 		query4 = fmt.Sprintf("increase(%s{purpose=\"solar\" site=\"%s\"}[%vd])", generation_metric_name, site, numberOfDays)
 		query5 = fmt.Sprintf("max_over_time(%s{purpose=\"solar\" site=\"%s\"}[%vd])", actual_power_metric_name, site, numberOfDays)
 	} else {
