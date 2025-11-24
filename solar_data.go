@@ -470,9 +470,9 @@ func FetchSitePeriodData(username string, password string, prometheusURL string,
 		case numberOfDays <= 7:
 			resolution = "15m"
 		case numberOfDays <= 31:
-			resolution = "30m"
+			resolution = "3h"
 		default:
-			resolution = "2h"
+			resolution = "24h"
 		}
 		query3 = fmt.Sprintf("%s{purpose=\"solar\" site=\"%s\"}[%vd:%s]", actual_power_metric_name, site, numberOfDays, resolution)
 		query4 = fmt.Sprintf("increase(%s{purpose=\"solar\" site=\"%s\"}[%vd])", generation_metric_name, site, numberOfDays)
@@ -530,9 +530,9 @@ func FetchPeriodData(username string, password string, prometheusURL string, num
 	case numberOfDays <= 7:
 		resolution = "15m"
 	case numberOfDays <= 31:
-		resolution = "30m"
+		resolution = "3h"
 	default:
-		resolution = "2h"
+		resolution = "24h"
 	}
 	query3 = fmt.Sprintf("%s[%vd:%s]", actual_power_metric, numberOfDays, resolution)
 	query4 = fmt.Sprintf("increase(%s[%vd])", generation_metric, numberOfDays)
