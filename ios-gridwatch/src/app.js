@@ -530,7 +530,7 @@ function fetchOnePeriodData(period){
             if(data3.length>0){
                 data3.forEach(d3=>{
                     if(d3.data){
-                        const periodIndex=periods.indexOf(period)
+                        let periodIndex=periods.indexOf(Number(period))
                         if(periodIndex<0)periodIndex=periodExpectedGaps.length-1
                         const BIG_GAP = periodExpectedGaps[periodIndex]*10;
 
@@ -542,8 +542,8 @@ function fetchOnePeriodData(period){
                         first[0]*=1000 //convert seconds to ms
                         const now=Date.now().valueOf()
                         const startOfPeriod=now-(86400000*periods[periodIndex]-BIG_GAP/5)
-                        if(first[0]>oneYearAgo){
-                            filled.push([oneYearAgo,0])
+                        if(first[0]>startOfPeriod){
+                            filled.push([startOfPeriod,0])
                             filled.push([first[0]-1,0])
                         }
                         filled.push(first);
