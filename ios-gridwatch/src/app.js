@@ -14,7 +14,7 @@ import { server } from "./config.js"
 let liveData={}
 const sitePeriodData={}
 const periods=[1,7,31,365]
-const periodExpectedGaps=[60000,15*60000,30*60000,120*60000]
+const periodExpectedGaps=[60000,15*60000,180*60000,24*60*60000]
 const total=document.getElementById("total")
 const daily=document.getElementById("daily")
 const week=document.getElementById("week")
