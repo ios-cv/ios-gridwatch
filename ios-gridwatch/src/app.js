@@ -462,8 +462,7 @@ function createSiteCard(siteData){
 
     const picture=document.createElement("picture")
     const source=document.createElement("source")
-    siteData.name=siteData.name.replaceAll(" ","%20")
-    const srcToTry=`/imgs/${siteData.name}.png`
+    const srcToTry=`/imgs/${siteData.name.replaceAll(" ","%20")}.png`
     source.setAttributeNS(null,"srcset",srcToTry)
     source.setAttributeNS(null,"type","image/png")
     img.src=`/imgs/Canopy.svg`
