@@ -19,6 +19,9 @@ const total=document.getElementById("total")
 const daily=document.getElementById("daily")
 const week=document.getElementById("week")
 const year=document.getElementById("year")
+if(Date.now()<1796083200000){//1st December 2026
+    year.parentElement.classList.add("display-none")
+}
 const explainTotals=document.getElementById("explainTotals")
 const current=document.getElementById("current")
 const bestProduction=document.getElementById("bestProduction")
