@@ -18,6 +18,7 @@ body {
     --graph-end-generation-average:#d00000;
     --graph-now:#15009b;
     --airport:#3090e9;
+    --circle-radius:1.5rem;
 
     background-color: var(--bkg);
     color:var(--main);
@@ -108,9 +109,18 @@ h1{
     position:absolute;
     color:var(--main-subtle);
 }
+.circle{
+    width:calc(2 * var(--circle-radius));
+    aspect-ratio: 1;
+    top:calc(50% - var(--circle-radius));
+    left:calc(50% - var(--circle-radius));
+    background-color: var(--bkg);
+    border-radius: 50%;
+    position: absolute;
+}
 
 .subtleOverlayOption{
-    position:absolute;
+    position:fixed;
     top:2px;
     left:2px;
     font-size: x-small;
@@ -128,6 +138,7 @@ h1{
 .glide{
     width:70dvw;
 }
+
 
 .site-card{
     display: flex;
