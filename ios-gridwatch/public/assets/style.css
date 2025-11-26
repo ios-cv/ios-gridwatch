@@ -114,7 +114,14 @@ h1{
     aspect-ratio: 1;
     top:calc(50% - var(--circle-radius));
     left:calc(50% - var(--circle-radius));
-    background-color: var(--bkg);
+    background: radial-gradient(
+    circle,
+    var(--bkg) 0%,
+    var(--bkg) 30%,
+    color-mix(in srgb, var(--bkg) 30%, #FFB800) 65%,
+    color-mix(in srgb, var(--bkg) 10%, #FFB800) 75%,
+    #FFB800 100%
+  );
     border-radius: 50%;
     position: absolute;
 }
@@ -636,4 +643,7 @@ span.ct-vertical{
 }
 .display-none{
     display:none;
+}
+.hidden{
+    display:none !important;
 }
