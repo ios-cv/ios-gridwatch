@@ -444,11 +444,15 @@ function createSiteRow(rank,siteData){
     const name=document.createElement('a')
     name.textContent=siteData.name
     name.classList.add("name")
+    name.title="See a graph of this sites generation"
     name.addEventListener("click",handleCardClick)
     nameCell.append(name)
     generationCell.textContent=formatWatts(siteData.snapshot)
+    generationCell.title="What this site is currently generating."
     meterCell.textContent=formatWatts(siteData.today*1000,true)
+    meterCell.title="The increase in this sites meter since midnight."
     maxPercentCell.textContent=siteData.max_percent.toFixed(2)+"%"
+    maxPercentCell.title="The current output as a percentage of this sites best output."
     row.append(rankCell,nameCell,generationCell,meterCell,maxPercentCell)
     return row
 }
@@ -474,6 +478,7 @@ function createSiteCard(siteData){
     const spacelessName=siteData.name.replaceAll(" ","")
     span.classList.add(`${spacelessName}-snapshot`)
     span.textContent=formatWatts(siteData.snapshot)
+    span.title=`Current ouptut from ${siteData.name}`
     picture.append(source,img)
     li.append(picture,name,span)
     return li
@@ -522,6 +527,7 @@ function handleCardClick(e){
     document.getElementById(siteName+"_checkbox").setAttribute("checked","checked")
     updateSiteOverview()
     siteDialog.show()
+    window.scroll(0,0)
 }
 
 //Fetch Functions

@@ -26,26 +26,26 @@
                 <span class="subtleOverlay" id="timeToUpdate" style="left: calc(50% - 0.9rem);top: calc(50% - 0.5rem);">59.9</span>
             </div>
             <ul class="totals">
-                <li>
+                <li title="Total generation from all sites at this moment">
                     <label for="current"><h2>Live Generation</h3></label>
                     <span id="current" class="highlight-output"></span>
                 </li>
-                <li>
+                <li title="Total generation from all sites since midnight">
                     <label for="daily"><h3>Today</h3></label>
                     <div class="arrow"><div class="arrow-body"></div><div class="arrow-head"></div></div>
                     <span id="daily" class="output"></span>
                 </li>
-                <li>
+                <li title="Total generation from all sites in the last 7 days">
                     <label for="week"><h3>Last 7 Days</h3></label>
                     <div class="arrow"><div class="arrow-body"></div><div class="arrow-head"></div></div>
                     <span id="week" class="output"></span>
                 </li>
-                <li>
+                <li title="Total generation from all sites in the last 365 days">
                     <label for="year"><h3>Last 365 Days</h3></label>
                     <div class="arrow"><div class="arrow-body"></div><div class="arrow-head"></div></div>
                     <span id="year" class="output"></span>
                 </li>
-                <li>
+                <li title="Total generation from all sites according to the meters">
                     <label for="total"><h2>Total Solar</h3></label>
                     <span id="total" class="highlight-output"></span>
                 </li>
@@ -92,11 +92,11 @@
         <div id="rank" class="column card">
             <table>
                 <thead>
-                    <th>Rank</th>
-                    <th>Site</th>
-                    <th><label for="generationSort">Generation</label><input type="radio" id="generationSort" name="sort" value="generation" checked="checked"></th>
-                    <th><label for="meterSort">Meter</label><input type="radio" id="meterSort" name="sort" value="meter"></th>
-                    <th><label for="maxSort">% of max</label><input type="radio" id="maxSort" name="sort" value="max"></th>
+                    <th title="The position in the table based on current sorting.">Rank</th>
+                    <th title="The name of the site.">Site</th>
+                    <th title="Click to sort by present output"><label for="generationSort">Generation</label><input type="radio" id="generationSort" name="sort" value="generation" checked="checked"></th>
+                    <th title="Click to sort by increase each sites meter since midnight"><label for="meterSort">Meter</label><input type="radio" id="meterSort" name="sort" value="meter"></th>
+                    <th title="Click to sort by performance"><label for="maxSort">Performance</label><input type="radio" id="maxSort" name="sort" value="max"></th>
                 </thead>
                 <tbody></tbody>
             </table>
@@ -142,8 +142,8 @@
                 </ul>
             </div>
             <div data-glide-el="controls">
-                <button class="glide__arrow glide__arrow--left" data-glide-dir="<">&lt;</button>
-                <button class="glide__arrow glide__arrow--right" data-glide-dir=">">&gt;</button>
+                <button class="glide__arrow glide__arrow--left" data-glide-dir="<" title="scroll through the sites">&lt;</button>
+                <button class="glide__arrow glide__arrow--right" data-glide-dir=">" title="scroll through the sites">&gt;</button>
             </div>
             <div class="glide__bullets" data-glide-el="controls[nav]">
 
@@ -157,7 +157,7 @@
                 viewBox="0 0 64 40"
                 width="24" height="24"
                 role="img" aria-hidden="true" focusable="false">
-            <title>Grip dots</title>
+            <title  title="move the graph around">Grip dots</title>
             <g fill="currentColor">
                 <circle cx="12" cy="10" r="4"/>
                 <circle cx="32" cy="10" r="4"/>
@@ -168,7 +168,7 @@
                 <circle cx="52" cy="30" r="4"/>
             </g>
             </svg>
-            <button id="closeSiteOverview">X</button>
+            <button id="closeSiteOverview" title="close the graphs window">X</button>
         </div>
         <div class="dropdown" data-control="checkbox-dropdown">
             <label class="dropdown-label">Select sites to display on graph</label>
