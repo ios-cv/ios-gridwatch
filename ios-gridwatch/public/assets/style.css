@@ -182,17 +182,20 @@ h1{
     z-index: 2;
     height:55dvh;
 }
-#siteGraph::after{
-    content:" ";
-    position:absolute;
-    bottom: 0;
-    right:0;
-    width:3px;
-    height: 3px;
-    border-bottom:12px solid black;
-    border-right:12px solid transparent;
-    box-sizing: border-box;
-    rotate:-0.25turn;
+div#demandGraph, div#siteGraph{
+    position: relative;
+    &::after{
+        content:"";
+        position:absolute;
+        bottom: 0;
+        right:0;
+        width:3px;
+        height: 3px;
+        border-bottom:12px solid black;
+        border-right:12px solid transparent;
+        box-sizing: border-box;
+        rotate:-0.25turn;
+    }
 }
 
 .tabs{
