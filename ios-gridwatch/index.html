@@ -197,14 +197,17 @@
         <div id="demandGraph"></div>
         <ul id="demandGraphLegend">
             <li class="series ct-series-a"><label for="legend_average">Mean Demand</label><div class="block"></div><input type="checkbox" name="legend" value="average" id="legend_average" checked></li>
-            <li class="series ct-series-b"><label for="legend_end">End of Averaged Generation</label><div class="block"></div><input type="checkbox" name="legend" value="end" id="legend_end" checked></li>
             <li class="series ct-series-d"><label for="legend_solar">Solar Generation</label><div class="block"></div><input type="checkbox" name="legend" id="legend_solar" value="solar" checked></li>
             <li class="series ct-series-c"><label for="legend_now">Current Time</label><div class="block"></div><input type="checkbox" name="legend" value="now" id="legend_now" checked></li>
-            <li class="series ct-series-i"><label for="legend_std">Two Standard Deviations From Mean</label><div class="block"></div><input type="checkbox" name="legend" id="legend_std" value="std"></li>
-            <li class="series ct-series-e"><label for="legend_summer">Mean Demand Summer</label><div class="block"></div><input type="checkbox" name="legend" id="legend_summer" value="summer"></li>
-            <li class="series ct-series-f"><label for="legend_winter">Mean Demand Winter</label><div class="block"></div><input type="checkbox" name="legend" id="legend_winter" value="winter"></li>
-            <li class="series ct-series-g"><label for="legend_min">Minimum Demand</label><div class="block"></div><input type="checkbox" name="legend" id="legend_min" value="min"></li>
-            <li class="series ct-series-h"><label for="legend_max">Maximum Demand</label><div class="block"></div><input type="checkbox" name="legend" id="legend_max" value="max"></li>
+            <div id="legend-more" class="hide-more">
+                <li class="series ct-series-b"><label for="legend_end">End of Averaged Generation</label><div class="block"></div><input type="checkbox" name="legend" value="end" id="legend_end" checked></li>
+                <li class="series ct-series-i"><label for="legend_std">Two Standard Deviations From Mean</label><div class="block"></div><input type="checkbox" name="legend" id="legend_std" value="std"></li>
+                <li class="series ct-series-e"><label for="legend_summer">Mean Demand Summer</label><div class="block"></div><input type="checkbox" name="legend" id="legend_summer" value="summer"></li>
+                <li class="series ct-series-f"><label for="legend_winter">Mean Demand Winter</label><div class="block"></div><input type="checkbox" name="legend" id="legend_winter" value="winter"></li>
+                <li class="series ct-series-g"><label for="legend_min">Minimum Demand</label><div class="block"></div><input type="checkbox" name="legend" id="legend_min" value="min"></li>
+                <li class="series ct-series-h"><label for="legend_max">Maximum Demand</label><div class="block"></div><input type="checkbox" name="legend" id="legend_max" value="max"></li>
+            </div>
+            <li><span id="legend-toggle">...Show More</span></li>
         </ul>
         <div id="meaning">
             <p>The demand on an average day at <span id="time"></span> is <span id="averageDemand"></span>s, current solar generation is meeting <span id="percentOfDemand"></span>% of this.</p>

@@ -432,6 +432,21 @@ document.querySelectorAll("[name=legend]").forEach(e=>{
 
 document.getElementById("selectAllSites").addEventListener("click",()=>{setTimeout(updateSiteOverview,0)})
 
+document.getElementById("legend-toggle").state=false;
+document.getElementById("legend-toggle").addEventListener("click",(e)=>{
+    e.target.state=!e.target.state
+    if(e.target.state){
+        e.target.textContent="... Show Less"
+        document.querySelectorAll("#legend-more").forEach(e=>e.classList.remove("hide-more"))
+        document.querySelectorAll("#legend-more").forEach(e=>e.classList.add("show-more"))
+    }
+    else{
+        e.target.textContent="... Show More"
+        document.querySelectorAll("#legend-more").forEach(e=>e.classList.add("hide-more"))
+        document.querySelectorAll("#legend-more").forEach(e=>e.classList.remove("show-more"))
+    }
+})
+
 //ELEMENT FACTORIES
 function createSiteRow(rank,siteData){
     const row=document.createElement('tr')
