@@ -325,7 +325,7 @@ func fetchPrometheusVectorQuery(username string, password string, prometheusURL 
 }
 
 func fetchPrometheusIncrease(username string, password string, prometheusURL string, metric string, period string) ([]PrometheusSnapshotData, error) {
-	query := fmt.Sprintf("increase(%s[%s])", metric, period)
+	query := fmt.Sprintf("delta(%s[%s])", metric, period)
 	params := url.Values{}
 	params.Add("query", query)
 	queryURL := prometheusURL + "?" + params.Encode()
@@ -498,7 +498,7 @@ func FetchSitePeriodData(username string, password string, prometheusURL string,
 			resolution = "24h"
 		}
 		query3 = fmt.Sprintf("avg_over_time(%s{purpose=\"solar\", site=\"%s\"}[%s])[%vd:%s]", actual_power_metric_name, sitePeriodData.Name, resolution, numberOfDays, resolution)
-		query4 = fmt.Sprintf("increase(%s{purpose=\"solar\", site=\"%s\"}[%vd])", generation_metric_name, sitePeriodData.Name, numberOfDays)
+		query4 = fmt.Sprintf("delta(%s{purpose=\"solar\", site=\"%s\"}[%vd])", generation_metric_name, sitePeriodData.Name, numberOfDays)
 		query5 = fmt.Sprintf("max_over_time(%s{purpose=\"solar\", site=\"%s\"}[%vd])", actual_power_metric_name, sitePeriodData.Name, numberOfDays)
 	} else {
 		return SitePeriodData{}, errors.New("you must include a site name")
@@ -563,7 +563,7 @@ func FetchPeriodData(username string, password string, prometheusURL string, num
 		resolution = "24h"
 	}
 	query3 = fmt.Sprintf("avg_over_time(%s[%s])[%vd:%s]", actual_power_metric, resolution, numberOfDays, resolution)
-	query4 = fmt.Sprintf("increase(%s[%vd])", generation_metric, numberOfDays)
+	query4 = fmt.Sprintf("delta(%s[%vd])", generation_metric, numberOfDays)
 	query5 = fmt.Sprintf("max_over_time(%s[%vd])", actual_power_metric, numberOfDays)
 
 	meter, err := fetchPrometheusQuery(username, password, prometheusURL, query1)
