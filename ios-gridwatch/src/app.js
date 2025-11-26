@@ -188,7 +188,7 @@ function drawAverageChart(){
     }
     
 }
-function drawSiteGraph(){ 
+function drawSiteGraph(recreateGraph=false){ 
     if (document.hidden) return; //No need to draw the graph if the page isn't visible.
     const checkedbox=document.querySelector('[name="period"]:checked')
     if(!checkedbox?.disabled){
@@ -222,7 +222,7 @@ function drawSiteGraph(){
                 }
             })
         }
-        if(siteGraph.graph){
+        if(siteGraph.graph&&!recreateGraph){
             siteGraph.graph.update({series})
         }
         else{
@@ -291,7 +291,7 @@ function updateTable(){
     })
 }
 
-function updateSiteOverview() {
+function updateSiteOverview(recreateGraph=false) {
     const periodsWithData=[]
     const keys=Object.keys(sitePeriodData)
     keys.forEach(k=>{
@@ -356,7 +356,7 @@ function updateSiteOverview() {
     })
     generationInPeriod.textContent=formatWatts(generation_in_period*1000,true)
     bestProduction.textContent=`${bestSite} with ${formatWatts(highest)}`
-    drawSiteGraph()
+    drawSiteGraph(recreateGraph)
 }
 
 //EVENT LISTENERS
@@ -515,7 +515,7 @@ function handleSiteSelection(){
 }
 
 function handlePeriodSelection(){
-    updateSiteOverview()
+    updateSiteOverview(true)
 }
 function handleCardClick(e){
     const siteName=e.currentTarget.textContent.replaceAll(" ","")
