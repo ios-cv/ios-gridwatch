@@ -50,8 +50,8 @@ const updateTimer={
         {
             window.location.reload();
         }
-        this.element.textContent=this.time.toFixed(1)
-        this.element2.textContent=this.time.toFixed(1)
+        this.element.textContent=this.time.toFixed(0)
+        this.element2.textContent=this.time.toFixed(0)
         const {width,height} =this.element.getBoundingClientRect()
         this.element.style.left = `calc(50% - ${width / 2}px)`
         this.element.style.top = `calc(50% - ${height / 2}px)`
