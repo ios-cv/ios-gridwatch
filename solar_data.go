@@ -36,7 +36,7 @@ type SiteData struct {
 	Max      float64 `json:"max"`
 }
 
-func get_solar_data(username string, password string, prometheusURL string) (SolarData, error) {
+func get_solar_data(username string, password string, prometheusURL string, estDNC int, monitoredDNC int) (SolarData, error) {
 	var sites []SiteData
 	now := time.Now()
 	//year, month, day := now.Date()
@@ -167,6 +167,32 @@ func get_solar_data(username string, password string, prometheusURL string) (Sol
 		log.Printf("Error fetching current output: %v\n", err)
 		return SolarData{}, err
 	}
+
+	//create a virtual site to represent unmonitored sites
+	//calculate the average of each value for the sites
+	var virtualSite SiteData
+
+	conversionFactor := float64(estDNC) / float64(monitoredDNC)
+	if len(sites) >= 0 {
+		for _, site := range sites {
+			virtualSite.Snapshot += site.Snapshot
+			virtualSite.Week += site.Week
+			virtualSite.Today += site.Today
+			virtualSite.Last_365 += site.Last_365
+			virtualSite.Max += site.Max
+		}
+		virtualSite.Snapshot *= conversionFactor
+		virtualSite.Today *= conversionFactor
+		virtualSite.Week *= conversionFactor
+		virtualSite.Last_365 *= conversionFactor
+		virtualSite.Max *= conversionFactor
+	}
+	virtualSite.Name = "Unmonitored (estimated)"
+
+	sites = append(sites, virtualSite)
+	week_total += virtualSite.Week
+	day_total += virtualSite.Today
+	latest_total_watts += virtualSite.Snapshot
 
 	return SolarData{
 		Total_kwh: float32(all_time_data.GetValue()),
