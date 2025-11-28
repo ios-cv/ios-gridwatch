@@ -47,6 +47,27 @@ func main() {
 	}
 	prom_url := flag.String("prometheus", prom_url_env, "URL for Prometheus Server")
 
+	est_DNC_env := os.Getenv("GRIDWATCH_ESTIMATED_DNC")
+	if est_DNC_env == "" {
+		est_DNC_env = "500"
+	}
+
+	est_DNC_flag := flag.String("estimate", est_DNC_env, "Estimated unmonitored solar capacity in kilowatts")
+	est_DNC, err := strconv.Atoi(*est_DNC_flag)
+	if err != nil {
+		est_DNC = 500
+	}
+
+	monitored_DNC_env := os.Getenv("GRIDWATCH_DNC")
+	if monitored_DNC_env == "" {
+		monitored_DNC_env = "20"
+	}
+	monitored_DNC_flag := flag.String("dnc", monitored_DNC_env, "Monitored solar capacity in kilowatts")
+	monitored_DNC, err := strconv.Atoi(*monitored_DNC_flag)
+	if err != nil {
+		monitored_DNC = 20
+	}
+
 	flag.Parse()
 
 	e := echo.New()
@@ -62,7 +83,7 @@ func main() {
 		w.Header().Set("Access-Control-Allow-Origin", "*")
 
 		send := func() error {
-			solarData, err := get_solar_data(*username, *password, *prom_url)
+			solarData, err := get_solar_data(*username, *password, *prom_url, est_DNC, monitored_DNC)
 			if err != nil {
 				log.Print("Error:", err)
 				return err
