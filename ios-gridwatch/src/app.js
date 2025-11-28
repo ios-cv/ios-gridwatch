@@ -481,12 +481,9 @@ function createSiteCard(siteData){
     const name=document.createElement('span')
     name.classList.add('name')
 
-    const picture=document.createElement("picture")
-    const source=document.createElement("source")
     const srcToTry=`/imgs/${siteData.name.replaceAll(" ","%20")}.png`
-    source.setAttributeNS(null,"srcset",srcToTry)
-    source.setAttributeNS(null,"type","image/png")
-    img.src=`/imgs/Canopy.svg`
+    img.src=srcToTry
+    img.addEventListener('error',()=>img.src="/imgs/RoofTop.png")
 
     name.textContent=siteData.name
     name.setAttributeNS(null,'data-name',siteData.name)
@@ -496,8 +493,7 @@ function createSiteCard(siteData){
     span.classList.add(`${spacelessName}-snapshot`)
     span.textContent=formatWatts(siteData.snapshot)
     span.title=`Current ouptut from ${siteData.name}`
-    picture.append(source,img)
-    li.append(picture,name,span)
+    li.append(img,name,span)
     return li
 }
 
