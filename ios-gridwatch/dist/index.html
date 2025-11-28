@@ -14,7 +14,7 @@
     <script src="/assets/glide.min.js"></script>
     <script src="/assets/dragables.js" defer></script>
     <title>Live Scilly Electricity</title>
-  <script type="module" crossorigin src="/assets/index-HimMbv_O.js"></script>
+  <script type="module" crossorigin src="/assets/index-B_qHoBta.js"></script>
 </head>
 <body>
     <span class="subtleOverlayOption" id="timeToUpdateOption">59.9</span>
@@ -26,34 +26,37 @@
                 <div class="circle"></div>
                 <span class="subtleOverlay" id="timeToUpdate" style="left: calc(50% - 0.9rem);top: calc(50% - 0.5rem);">59.9</span>
             </div>
-            <ul class="totals">
-                <li title="Total generation from all sites at this moment">
-                    <label for="current"><h2>Live Generation</h3></label>
-                    <span id="current" class="highlight-output"></span>
-                </li>
-                <li title="Total generation from all sites since midnight">
-                    <label for="daily"><h3>Today</h3></label>
-                    <div class="arrow"><div class="arrow-body"></div><div class="arrow-head"></div></div>
-                    <span id="daily" class="output"></span>
-                </li>
-                <li title="Total generation from all sites in the last 7 days">
-                    <label for="week"><h3>Last 7 Days</h3></label>
-                    <div class="arrow"><div class="arrow-body"></div><div class="arrow-head"></div></div>
-                    <span id="week" class="output"></span>
-                </li>
-                <li title="Total generation from all sites in the last 365 days" class="hidden">
-                    <label for="year"><h3>Last 365 Days</h3></label>
-                    <div class="arrow"><div class="arrow-body"></div><div class="arrow-head"></div></div>
-                    <span id="year" class="output"></span>
-                </li>
-                <li title="Total generation from all sites according to the meters" class="hidden">
-                    <label for="total"><h2>Total Solar</h3></label>
-                    <span id="total" class="highlight-output"></span>
-                </li>
-                <li>
-                    <a class="explain" id="explainTotalsLink">What do these numbers mean?</a>
-                </li>
-            </ul>
+            <div class="column">
+                <ul class="totals">
+                    <div class="total-wrapper">
+                        <h4>Totals (includes estimations)</h4>
+                        <li title="Total generation from all sites at this moment">
+                            <label for="current"><h2>Live Generation</h3></label>
+                            <span id="current" class="highlight-output"></span>
+                        </li>
+                        <li title="Total generation from all sites since midnight">
+                            <label for="daily"><h3>Today</h3></label>
+                            <div class="arrow"><div class="arrow-body"></div><div class="arrow-head"></div></div>
+                            <span id="daily" class="output"></span>
+                        </li>
+                        <li title="Total generation from all sites in the last 7 days">
+                            <label for="week"><h3>Last 7 Days</h3></label>
+                            <div class="arrow"><div class="arrow-body"></div><div class="arrow-head"></div></div>
+                            <span id="week" class="output"></span>
+                        </li>
+                    </div>
+                    <li title="Total generation from all sites in the last 365 days" class="hidden">
+                        <label for="year"><h3>Last 365 Days</h3></label>
+                        <div class="arrow"><div class="arrow-body"></div><div class="arrow-head"></div></div>
+                        <span id="year" class="output"></span>
+                    </li>
+                    <li title="Total generation from all sites according to the meters" class="hidden">
+                        <label for="total"><h2>Total Solar</h3></label>
+                        <span id="total" class="highlight-output"></span>
+                    </li>
+                </ul>
+                <a class="explain" id="explainTotalsLink">What do these numbers mean?</a>
+            </div>
         </div>
         <section id="explainTotals" class="display-none">
             <div class="title-bar">
@@ -77,7 +80,7 @@
             </div>
             <ul>
                 <li><span class="explain-point">Live Generation:</span> How much power is being generated right now.</li>
-                <li><span class="explain-point">Today:</span> How much energy has been produced since midnight, this is the sum of all increases of the generation meters.</li>
+                <li><span class="explain-point">Today:</span> How much energy has been produced since midnight.</li>
                 <li><span class="explain-point">Last 7 Days:</span> How much energy has been produced in the last 7 &times; 24 hours.</li>
                 <li><span class="explain-point">ETA:</span> The number inside the sun shows a count down to the estimated time of the next update in seconds.</li>
                 <li><span class="explain-point">W (watts):</span> Watts are a measure of power. A typical energy efficient lightbulb uses 4-10 watts.</li>
@@ -124,7 +127,8 @@
             <ul>
                 <li><span class="explain-point">Generation:</span> How much power is being generated right now at that site.</li>
                 <li><span class="explain-point">Meter:</span> The amount the meter reading has increased since midnight for this site.</li>
-                <li><span class="explain-point">&percnt; of max:</span> How close the site is to its highest output in the last year. Some sites are limited by their inverter so may regularly reach their peak, it is not cost effective to install a larger inverter.</li>
+                <li><span class="explain-point">Performance:</span> How close the site is to its highest output in the last year. Some sites are limited by their inverter so may regularly reach their peak, it is not cost effective to install a larger inverter.</li>
+                <li><span class="explain-point">Unmonitored (estimated):</span> This is an estimate for all unmonitored generation sites on Scilly. Taking the data from our monitored sites as representative of average production across the islands we have scaled this up proportional to our estimate of total capacity.</li>
                 <li><span class="explain-point">Sorting:</span> The heading in <b>bold</b> denotes which column the data is currently sorted by. Click a heading to sort the data by it.</li>
                 <li><span class="explain-point">W (watts):</span> Watts are a measure of power. A typical energy efficient lightbulb uses 4-10 watts.</li>
                 <li><span class="explain-point">kW (kilowatts):</span> 1,000 watts. An electric kettle usually requires 3kW.</li>
