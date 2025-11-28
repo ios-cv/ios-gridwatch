@@ -271,6 +271,7 @@ function updateTable(){
     if (selected) {
         option=selected.value
     }
+    const virtualSite=liveData.sites.pop()
     switch(option){
         case "meter":
             liveData.sites.sort((a,b)=>b.today-a.today)
@@ -286,9 +287,10 @@ function updateTable(){
     while(rank.firstChild){
         rank.firstChild.remove()
     }
-    liveData.sites.slice(0,6).forEach((site,i)=>{
+    liveData.sites.slice(0,5).forEach((site,i)=>{
         rank.append(createSiteRow(i+1,site))
     })
+    rank.append(createSiteRow("",virtualSite))
 }
 
 function updateSiteOverview(recreateGraph=false) {
