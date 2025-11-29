@@ -4087,6 +4087,7 @@ function updateTable() {
   liveData.sites.slice(0, 5).forEach((site, i) => {
     rank.append(createSiteRow(i + 1, site));
   });
+  liveData.sites.push(virtualSite);
   rank.append(createSiteRow("", virtualSite));
 }
 function updateSiteOverview(recreateGraph = false) {
@@ -4163,9 +4164,10 @@ document.addEventListener("DOMContentLoaded", () => {
       });
     }
     if (sites_carousel.firstElementChild) {
+      console.log(liveData.sites);
       updateTimer.newEta();
       liveData.sites.forEach((site, i) => {
-        const spacelessName = site.name.replaceAll(" ", "");
+        const spacelessName = site.name.replaceAll(" ", "").replaceAll("(", "").replaceAll(")", "");
         sites_carousel.querySelectorAll(`.${spacelessName}-snapshot`).forEach((span) => {
           span.textContent = formatWatts(site.snapshot);
         });
@@ -4177,7 +4179,9 @@ document.addEventListener("DOMContentLoaded", () => {
     } else {
       updateTimer.start();
       if (((_a = liveData["sites"]) == null ? void 0 : _a.length) > 0) {
+        const virtualSite = liveData.sites.pop();
         const sortedSites = liveData["sites"].sort((a, b) => b.snapshot - a.snapshot);
+        sortedSites.push(virtualSite);
         sortedSites.forEach((site, i) => {
           sites_carousel.append(createSiteCard(site));
           siteSelection.append(createSiteSelector(site.name, letters[i]));
@@ -4261,12 +4265,14 @@ function createSiteCard(siteData) {
   name.classList.add("name");
   const srcToTry = `/imgs/${siteData.name.replaceAll(" ", "%20")}.png`;
   img.src = srcToTry;
-  img.addEventListener("error", () => img.src = "/imgs/RoofTop.png");
+  img.addEventListener("error", () => {
+    document.querySelectorAll(`[src="${srcToTry}"]`).forEach((i) => i.src = "/imgs/RoofTop.png");
+  });
   name.textContent = siteData.name;
   name.setAttributeNS(null, "data-name", siteData.name);
   const span = document.createElement("span");
   span.classList.add("generation-total");
-  const spacelessName = siteData.name.replaceAll(" ", "");
+  const spacelessName = siteData.name.replaceAll(" ", "").replaceAll("(", "").replaceAll(")", "");
   span.classList.add(`${spacelessName}-snapshot`);
   span.textContent = formatWatts(siteData.snapshot);
   span.title = `Current ouptut from ${siteData.name}`;
