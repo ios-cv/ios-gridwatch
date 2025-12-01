@@ -375,7 +375,6 @@ document.addEventListener("DOMContentLoaded",()=>{
             })
         }
         if(sites_carousel.firstElementChild){//if not first message
-            console.log(liveData.sites)
             updateTimer.newEta()
             liveData.sites.forEach((site,i) => {
                 const spacelessName=site.name.replaceAll(" ","").replaceAll("(","").replaceAll(")","")
