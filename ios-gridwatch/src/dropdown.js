@@ -44,7 +44,6 @@ export const initDropdown=function () {
       };
   
       const toggleOpen = (forceOpen = false) => {
-        console.log("toggle open")
         if (!isOpen || forceOpen) {
           isOpen = true;
           el.classList.add('on');
