@@ -395,7 +395,9 @@ document.addEventListener("DOMContentLoaded",()=>{
                 sortedSites.push(virtualSite)
                 sortedSites.forEach((site,i) => {
                     sites_carousel.append(createSiteCard(site))
-                    siteSelection.append(createSiteSelector(site.name,letters[i]))
+                    if (site.name!="Unmonitored (estimated)"){
+                        siteSelection.append(createSiteSelector(site.name,letters[i]))
+                    }
                     addBullet(glide_carousel)
                 });
             }
