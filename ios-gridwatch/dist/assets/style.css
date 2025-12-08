@@ -6,6 +6,7 @@ body {
     --main-subtle:#eea700;
     --main-focus:#e5a73b;
     --main-darker:#a36c0c;
+    --title-bar:black;
     --modal-background:white;
     --modal-tabs:#ddd;
     --series-average:#000;
@@ -91,17 +92,18 @@ h1{
 .total-wrapper{
     border:1px solid var(--main);
     border-radius: 2px;
-    padding:0.7rem;
+    padding:0.8rem;
     position:relative;
-    margin:0.5rem;
+    margin:0.7rem;
     display:flex;
     flex-direction: column;
     justify-content: space-evenly;
     gap:0.3rem;
     & h4{
         position:absolute;
-        top:-0.4rem;
-        font-size:0.6rem;
+        top:-0.65rem;
+        left:0.5rem;
+        font-size:1rem;
         background-color:var(--bkg);
         padding:0.2rem
     }
@@ -151,7 +153,7 @@ h1{
     top:2px;
     left:2px;
     font-size: x-small;
-    color:#999;
+    color:var(--bkg);
 }
 
 #sites{
@@ -196,10 +198,10 @@ h1{
 
 .explain{
     color:var(--main-focus);
-    font-size: x-small;
+    font-size: small;
     cursor:pointer;
     text-decoration: underline;
-    letter-spacing: 0.05rem;
+    letter-spacing: 0.07rem;
 }
 
 #siteGraph{
@@ -364,60 +366,53 @@ div#demandGraph, div#siteGraph{
         stroke:var(--series-average);
     }
     & .ct-series-b .ct-line{
-        stroke:var(--graph-end-generation-average);
+        stroke:var(--graph-now);
         stroke-dasharray: 2px;
         stroke-dashoffset: 2px;
     }
     & .ct-series-c .ct-line{
-        stroke:var(--graph-now);
-        stroke-dasharray: 2px;
-    }
-    & .ct-series-d .ct-line{
         stroke:var(--series-solar);
     }
-    & .ct-series-e .ct-line{
+    & .ct-series-d .ct-line{
         stroke:var(--series-summer);
     }
-    & .ct-series-f .ct-line{
+    & .ct-series-e .ct-line{
         stroke:var(--series-winter);
     }
-    & .ct-series-g .ct-line{
+    & .ct-series-f .ct-line{
         stroke:var(--series-min);
     }
-    & .ct-series-h .ct-line{
+    & .ct-series-g .ct-line{
         stroke:var(--series-max);
     }
-    & .ct-series-i .ct-line{
+    & .ct-series-h .ct-line{
         stroke:var(--series-standard-deviations);
     }
-    & .ct-series-j .ct-line{
+    & .ct-series-i .ct-line{
         stroke:var(--series-standard-deviations);
     }
     & .ct-series-a{
         color: var(--series-average);
     }
     & .ct-series-b{
-        color: var(--graph-end-generation-average);
-    }
-    & .ct-series-c{
         color: var(--graph-now);
     }
-    & .ct-series-d{
+    & .ct-series-c{
         color: var(--series-solar);
     }
-    & .ct-series-e{
+    & .ct-series-d{
         color: var(--series-summer);
     }
-    & .ct-series-f{
+    & .ct-series-e{
         color: var(--series-winter);
     }
-    & .ct-series-g{
+    & .ct-series-f{
         color: var(--series-min);
     }
-    & .ct-series-h{
+    & .ct-series-g{
         color: var(--series-max);
     }
-    & .ct-series-i{
+    & .ct-series-h{
         color: var(--series-standard-deviations);
     }
 }
@@ -455,7 +450,7 @@ div#demandGraph, div#siteGraph{
     touch-action: none;
     display: flex;
     justify-content: space-between;
-    color: var(--main-darker);
+    color: var(--title-bar);
     height: fit-content;
     padding:0.2rem;
     background-color: var(--main);
@@ -481,6 +476,11 @@ div#demandGraph, div#siteGraph{
 .explain-point{
     font-weight: bold;
     color:var(--main-darker);
+}
+.explain-units{
+    margin-top: 0.6rem;
+    padding-top: 0.4rem;
+    border-top: dashed 1px var(--main);
 }
 #siteOverview{
     width:fit-content;
@@ -620,7 +620,8 @@ span.ct-vertical{
     width: 90dvw;
     overflow:hidden;
     resize: vertical;
-    min-height: 152px;
+    height:375px;
+    min-height: 375px;
 }
 @media (max-width: 600px) {
     .card{
