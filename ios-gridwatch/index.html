@@ -83,12 +83,14 @@
                 <li><span class="explain-point">Today:</span> How much energy has been produced since midnight.</li>
                 <li><span class="explain-point">Last 7 Days:</span> How much energy has been produced in the last 7 &times; 24 hours.</li>
                 <li><span class="explain-point">ETA:</span> The number inside the sun shows a count down to the estimated time of the next update in seconds.</li>
-                <li><span class="explain-point">W (watts):</span> Watts are a measure of power. A typical energy efficient lightbulb uses 4-10 watts.</li>
-                <li><span class="explain-point">kW (kilowatts):</span> 1,000 watts. An electric kettle usually requires 3kW.</li>
-                <li><span class="explain-point">MW (megawatts):</span> 1,000 kilowatts or 1,000,000 watts. Typical demand for all of Scilly is around 2 megawatts, minimum demand is about 1 megawatt and peak demand can be as high as 7.5 megawatts although this is exceptional, 4.5 megawatts is a normal peak.</li>
-                <li><span class="explain-point">Wh (watt hours):</span> Watt hours are a measure of supplied power. 1 watt hour can power a 4 watt lightbulb for 1 quarter (1/4) of an hour (15 minutes).</li>
-                <li><span class="explain-point">kWh (kilowatt hours):</span> Kilowatt hours are the standard unit of supplied electricity. An average UK house hold with electric heating uses approximately 4,000kWh annually.</li>
-                <li><span class="explain-point">MWh (megawatt hours):</span> 1,000 kilowatt hours. A consistent demand of 2MW for a day is 48 megawatt hours.</li>
+                <div class="explain-units">
+                    <li><span class="explain-point">W (watts):</span> Watts are a measure of power. A typical energy efficient lightbulb uses 4-10 watts.</li>
+                    <li><span class="explain-point">kW (kilowatts):</span> 1,000 watts. An electric kettle usually requires 3kW.</li>
+                    <li><span class="explain-point">MW (megawatts):</span> 1,000 kilowatts or 1,000,000 watts. Typical demand for all of Scilly is around 2 megawatts, minimum demand is about 1 megawatt and peak demand can be as high as 7.5 megawatts although this is exceptional, 4.5 megawatts is a normal peak.</li>
+                    <li><span class="explain-point">Wh (watt hours):</span> Watt hours are a measure of supplied power. 1 watt hour can power a 4 watt lightbulb for 1 quarter (1/4) of an hour (15 minutes).</li>
+                    <li><span class="explain-point">kWh (kilowatt hours):</span> Kilowatt hours are the standard unit of supplied electricity. An average UK house hold with electric heating uses approximately 4,000kWh annually.</li>
+                    <li><span class="explain-point">MWh (megawatt hours):</span> 1,000 kilowatt hours. A consistent demand of 2MW for a day is 48 megawatt hours.</li>
+                </div>
             </ul>
         </section>
         <div id="rank" class="column card">
@@ -96,9 +98,9 @@
                 <thead>
                     <th title="The position in the table based on current sorting.">Rank</th>
                     <th title="The name of the site.">Site</th>
-                    <th title="Click to sort by present output"><label for="generationSort">Generation</label><input type="radio" id="generationSort" name="sort" value="generation" checked="checked"></th>
-                    <th title="Click to sort by increase each sites meter since midnight"><label for="meterSort">Meter</label><input type="radio" id="meterSort" name="sort" value="meter"></th>
-                    <th title="Click to sort by performance"><label for="maxSort">Performance</label><input type="radio" id="maxSort" name="sort" value="max"></th>
+                    <th title="Click to sort by present output"><label for="generationSort">Live</label><input type="radio" id="generationSort" name="sort" value="generation" checked="checked"></th>
+                    <th title="Click to sort by generation since midnight"><label for="meterSort">Today</label><input type="radio" id="meterSort" name="sort" value="meter"></th>
+                    <th title="Click to sort by % of max output"><label for="maxSort">% of max</label><input type="radio" id="maxSort" name="sort" value="max"></th>
                 </thead>
                 <tbody></tbody>
             </table>
@@ -125,17 +127,19 @@
                 <button id="closeExplainRanks">X</button>
             </div>
             <ul>
-                <li><span class="explain-point">Generation:</span> How much power is being generated right now at that site.</li>
-                <li><span class="explain-point">Meter:</span> The amount the meter reading has increased since midnight for this site.</li>
-                <li><span class="explain-point">Performance:</span> How close the site is to its highest output in the last year. Some sites are limited by their inverter so may regularly reach their peak, it is not cost effective to install a larger inverter.</li>
-                <li><span class="explain-point">Unmonitored (estimated):</span> This is an estimate for all unmonitored generation sites on Scilly. Taking the data from our monitored sites as representative of average production across the islands we have scaled this up proportional to our estimate of total capacity.</li>
+                <li><span class="explain-point">Live:</span> How much power is being generated right now at that site.</li>
+                <li><span class="explain-point">Today:</span> The amount the meter reading has increased since midnight for this site.</li>
+                <li><span class="explain-point">% of max:</span> How close the site is to its highest output in the last year. Some sites are limited by their inverter so may regularly reach their peak, it is not cost effective to install a larger inverter.</li>
+                <li><span class="explain-point">Unmonitored (estimated):</span> This is an estimate for all unmonitored generation sites on Scilly including households. Taking the data from our monitored sites as representative of average production across the islands we have scaled this up proportional to our estimate of total capacity.</li>
                 <li><span class="explain-point">Sorting:</span> The heading in <b>bold</b> denotes which column the data is currently sorted by. Click a heading to sort the data by it.</li>
-                <li><span class="explain-point">W (watts):</span> Watts are a measure of power. A typical energy efficient lightbulb uses 4-10 watts.</li>
-                <li><span class="explain-point">kW (kilowatts):</span> 1,000 watts. An electric kettle usually requires 3kW.</li>
-                <li><span class="explain-point">MW (megawatts):</span> 1,000 kilowatts or 1,000,000 watts. Typical demand for all of Scilly is around 2 megawatts.</li>
-                <li><span class="explain-point">Wh (watt hours):</span> Watt hours are a measure of supplied power. 1 watt hour can power a 4 watt lightbulb for 1 quarter (1/4) of an hour (15 minutes).</li>
-                <li><span class="explain-point">kWh (kilowatt hours):</span> Kilowatt hours are the standard unit of supplied electricity. An average UK house hold with electric heating uses approximately 4,000kWh annually.</li>
-                <li><span class="explain-point">MWh (megawatt hours):</span> 1,000 kilowatt hours. A consistent demand of 2MW for a day is 48 megawatt hours.</li>
+                <div class="explain-units">
+                    <li><span class="explain-point">W (watts):</span> Watts are a measure of power. A typical energy efficient lightbulb uses 4-10 watts.</li>
+                    <li><span class="explain-point">kW (kilowatts):</span> 1,000 watts. An electric kettle usually requires 3kW.</li>
+                    <li><span class="explain-point">MW (megawatts):</span> 1,000 kilowatts or 1,000,000 watts. Typical demand for all of Scilly is around 2 megawatts.</li>
+                    <li><span class="explain-point">Wh (watt hours):</span> Watt hours are a measure of supplied power. 1 watt hour can power a 4 watt lightbulb for 1 quarter (1/4) of an hour (15 minutes).</li>
+                    <li><span class="explain-point">kWh (kilowatt hours):</span> Kilowatt hours are the standard unit of supplied electricity. An average UK house hold with electric heating uses approximately 4,000kWh annually.</li>
+                    <li><span class="explain-point">MWh (megawatt hours):</span> 1,000 kilowatt hours. A consistent demand of 2MW for a day is 48 megawatt hours.</li>
+                </div>
             </ul>
         </section>
         <div class="glide">
@@ -195,7 +199,7 @@
         </div>
     </section>
     <div class="column">
-        <h2 class="graph-title">Average (Mean) Demand For Electricity On Scilly Throughout The Day</h2>
+        <h2 class="graph-title">Demand and Generation on Scilly Throughout the Day</h2>
         <div id="demandGraph"></div>
         <ul id="demandGraphLegend">
             <li class="series ct-series-a"><label for="legend_average">Mean Demand</label><div class="block"></div><input type="checkbox" name="legend" value="average" id="legend_average" checked></li>
