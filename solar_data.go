@@ -467,12 +467,12 @@ type PeriodData struct {
 func FetchTodaysGenerationData(username string, password string, prometheusURL string, estDNC int, monitoredDNC int) (periodData PeriodData, err error) {
 	now := time.Now()
 	conversionFactor := float64(estDNC)/float64(monitoredDNC) + 1.0 //total generation is the number of times larger that estimated network capacity is than DNC +1 for the DNC
-	query := fmt.Sprintf("sum(avg_over_time(%s[30m]))", actual_power_metric)
+	query := fmt.Sprintf("sum(%s)", actual_power_metric)
 	params := url.Values{}
 	params.Add("query", query)
 	params.Add("start", string(now.Format("2006-01-02T00:00:00"))+"Z")
 	params.Add("end", string(now.Format("2006-01-02T15:04:05"))+"Z")
-	params.Add("step", "1800")
+	params.Add("step", "60")
 	queryURL := prometheusURL + "_range?" + params.Encode()
 	req, err := http.NewRequest("GET", queryURL, nil)
 	if err != nil {
