@@ -164,7 +164,7 @@ func main() {
 		w := c.Response()
 		w.Header().Set("Access-Control-Allow-Origin", "*")
 
-		site_data, err := FetchTodaysGenerationData(*username, *password, *prom_url)
+		site_data, err := FetchTodaysGenerationData(*username, *password, *prom_url, est_DNC, monitored_DNC)
 		if err != nil {
 			if strings.Contains(err.Error(), "empty dataset") {
 				return c.JSON(http.StatusOK, PeriodData{})

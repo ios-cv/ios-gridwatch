@@ -464,8 +464,9 @@ type PeriodData struct {
 	Values [][]interface{} `json:"values"`
 }
 
-func FetchTodaysGenerationData(username string, password string, prometheusURL string) (periodData PeriodData, err error) {
+func FetchTodaysGenerationData(username string, password string, prometheusURL string, estDNC int, monitoredDNC int) (periodData PeriodData, err error) {
 	now := time.Now()
+	conversionFactor := float64(estDNC)/float64(monitoredDNC) + 1.0 //total generation is the number of times larger that estimated network capacity is than DNC +1 for the DNC
 	query := fmt.Sprintf("sum(avg_over_time(%s[30m]))", actual_power_metric)
 	params := url.Values{}
 	params.Add("query", query)
@@ -497,7 +498,20 @@ func FetchTodaysGenerationData(username string, password string, prometheusURL s
 		return PeriodData{}, err
 	}
 	if len(promResp.Data.Result) > 0 {
-		return promResp.Data.Result[0], nil
+		results := promResp.Data.Result[0]
+		for i, result := range results.Values {
+			res, ok := result[1].(string)
+			if !ok {
+				return PeriodData{}, fmt.Errorf("unexpected data type in response (%T)", result[1])
+			}
+			ts, err := strconv.ParseFloat(res, 64)
+			if err != nil {
+				return PeriodData{}, fmt.Errorf("unexpected data type in response, %v", err)
+			}
+			ts = ts * conversionFactor
+			results.Values[i][1] = ts
+		}
+		return results, nil
 	} else {
 		return PeriodData{}, fmt.Errorf("empty dataset for query:%s", query)
 	}
