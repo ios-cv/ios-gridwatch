@@ -71,7 +71,6 @@ const sortingOptions=document.querySelectorAll("[name=sort]")
 const demandGraph=document.getElementById("demandGraph")
 const legend={
     average:document.getElementById("legend_average"),
-    end:document.getElementById("legend_end"),
     now:document.getElementById("legend_now"),
     min:document.getElementById("legend_min"),
     max:document.getElementById("legend_max"),
@@ -126,10 +125,8 @@ function drawAverageChart(){
     ))
     const noLine=[{x:referenceDay(),y:0},{x:referenceDay().valueOf()+1,y:0}]
     const solarData=legend.solar.checked?combinedSolarData.getValues():noLine;
-    const endLine=[{x:averagedDataTransitionX,y:max_value},{x:averagedDataTransitionX+100,y:0}]
     const nowLine=[{x:referenceDay(),y:max_value},{x:referenceDay().valueOf()+100,y:0}]
     const average={name:'Average Day',data:legend.average.checked?averageDay:noLine}
-    const end={name:'pageLoad',data:legend.solar.checked&&legend.end.checked?endLine:noLine}
     const now={name:'Now',data:legend.now.checked?nowLine:noLine}
     const summer={name:'Average Summer',data:legend.summer.checked?averageSummerDay:noLine}
     const winter={name:'Average Winter',data:legend.winter.checked?averageWinterDay:noLine}
@@ -143,7 +140,6 @@ function drawAverageChart(){
         demandGraph.graph.update({
             series:[
                 average,
-                end,
                 now,
                 solar,
                 summer,
@@ -160,7 +156,6 @@ function drawAverageChart(){
         '#demandGraph',{
             series:[
                 average,
-                end,
                 now,
                 solar,
                 summer,

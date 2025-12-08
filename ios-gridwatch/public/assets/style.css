@@ -364,60 +364,53 @@ div#demandGraph, div#siteGraph{
         stroke:var(--series-average);
     }
     & .ct-series-b .ct-line{
-        stroke:var(--graph-end-generation-average);
+        stroke:var(--graph-now);
         stroke-dasharray: 2px;
         stroke-dashoffset: 2px;
     }
     & .ct-series-c .ct-line{
-        stroke:var(--graph-now);
-        stroke-dasharray: 2px;
-    }
-    & .ct-series-d .ct-line{
         stroke:var(--series-solar);
     }
-    & .ct-series-e .ct-line{
+    & .ct-series-d .ct-line{
         stroke:var(--series-summer);
     }
-    & .ct-series-f .ct-line{
+    & .ct-series-e .ct-line{
         stroke:var(--series-winter);
     }
-    & .ct-series-g .ct-line{
+    & .ct-series-f .ct-line{
         stroke:var(--series-min);
     }
-    & .ct-series-h .ct-line{
+    & .ct-series-g .ct-line{
         stroke:var(--series-max);
     }
-    & .ct-series-i .ct-line{
+    & .ct-series-h .ct-line{
         stroke:var(--series-standard-deviations);
     }
-    & .ct-series-j .ct-line{
+    & .ct-series-i .ct-line{
         stroke:var(--series-standard-deviations);
     }
     & .ct-series-a{
         color: var(--series-average);
     }
     & .ct-series-b{
-        color: var(--graph-end-generation-average);
-    }
-    & .ct-series-c{
         color: var(--graph-now);
     }
-    & .ct-series-d{
+    & .ct-series-c{
         color: var(--series-solar);
     }
-    & .ct-series-e{
+    & .ct-series-d{
         color: var(--series-summer);
     }
-    & .ct-series-f{
+    & .ct-series-e{
         color: var(--series-winter);
     }
-    & .ct-series-g{
+    & .ct-series-f{
         color: var(--series-min);
     }
-    & .ct-series-h{
+    & .ct-series-g{
         color: var(--series-max);
     }
-    & .ct-series-i{
+    & .ct-series-h{
         color: var(--series-standard-deviations);
     }
 }
