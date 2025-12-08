@@ -668,14 +668,10 @@ function fetchCombinedSolarData(){
             if(data3.values?.length>0){
                 combinedSolarData.push(...data3.values.map(r=>{
                     return{
-                        x:referenceDay(r[0]*1000).valueOf()-(15*60*1000),//Prometheus uses seconds so convert to milliseconds for js, also move the data point to the middle of the time period it represents
+                        x:referenceDay(r[0]*1000).valueOf(),//Prometheus uses seconds so convert to milliseconds for js
                         y:parseFloat(r[1]/1000000)//the supplied value is in watts, convert to MW for the graph
                     }
                 }))
-                //move the most recent point to the appropriate time on the graph
-                const zero=combinedSolarData.getRecent(1).x+(15*60*1000)
-                const lastAveragedPoint=zero+(referenceDay().valueOf()-zero)/2
-                combinedSolarData.editRecent(0,{x:lastAveragedPoint})
                 drawAverageChart()
             }
         })
