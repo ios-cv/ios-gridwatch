@@ -1,16 +1,15 @@
 body {
     --bkg:white;
-    --bkg-faint:#fff7e2;
-    --bkg-focus:#fff5b2;
-    --main:#d4962a;
-    --main-subtle:#eea700;
-    --main-focus:#e5a73b;
-    --main-darker:#a36c0c;
+    --bkg-faint:#e7f4ff;
+    --main:#60b2ff;
+    --main-focus:var(--main);
+    --main-darker:#6b6b6b;
+    --main-subtle:var(--main-darker);
     --title-bar:black;
     --modal-background:white;
     --modal-tabs:#ddd;
     --series-average:#000;
-    --series-solar:var(--main);
+    --series-solar:#d09837;
     --series-summer:#007ca5;
     --series-winter:#374f57;
     --series-min:#88009a;
@@ -30,7 +29,12 @@ h1{
     margin: 0.5rem 0 2rem 0;
     text-align: center;
 }
-
+.intro{
+    padding:0 0.5rem 2rem 0.5rem;
+    margin:0 auto;
+    text-align: center;
+    max-width:700px;
+}
 .flex{
     display: flex;
     flex-wrap: wrap;
@@ -202,6 +206,7 @@ h1{
     cursor:pointer;
     text-decoration: underline;
     letter-spacing: 0.07rem;
+    padding:0.2rem;
 }
 
 #siteGraph{
@@ -557,7 +562,10 @@ th{
 }
 tr:nth-child(2n){
     background-color: var(--bkg-faint);
-    color:#727272;
+    color:var(--main-darker);
+    & .name:hover{
+        color:var(--main);
+    }
 }
 td:nth-child(5){
     text-align: right;;
@@ -572,6 +580,11 @@ td:nth-child(5){
 }
 #meaning p{
     margin:1rem 0;
+    line-height: 1.2rem;
+}
+
+#meaning a{
+    color:var(--main);
 }
 .ct-vertical{
     font-size:0.7rem;
