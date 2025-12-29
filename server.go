@@ -16,6 +16,16 @@ import (
 	"github.com/labstack/echo/v4/middleware"
 )
 
+var Reset = "\033[0m"
+var Red = "\033[31m"
+var Green = "\033[32m"
+var Yellow = "\033[33m"
+var Blue = "\033[34m"
+var Magenta = "\033[35m"
+var Cyan = "\033[36m"
+var Gray = "\033[37m"
+var White = "\033[97m"
+
 func main() {
 	port_env := os.Getenv("GRIDWATCH_PORT")
 	if port_env == "" {
@@ -68,10 +78,48 @@ func main() {
 		monitored_DNC = 20
 	}
 
+	monitored_count_env := os.Getenv("GRIDWATCH_MONITORED_COUNT")
+	if monitored_count_env == "" {
+		monitored_count_env = "1"
+	}
+	monitored_count_flag := flag.String("sitecount", monitored_count_env, "The number of sites that it is expected to get data from.")
+	monitored_count, err := strconv.Atoi(*monitored_count_flag)
+	if err != nil {
+		monitored_count = 1
+	}
+
+	update_time_env := os.Getenv("GRIDWATCH_UPDATE_TIME")
+	if update_time_env == "" {
+		update_time_env = "60"
+	}
+	update_time_flag := flag.String("updatetime", update_time_env, "How many seconds between server sent updates.")
+	update_time, err := strconv.Atoi(*update_time_flag)
+	if err != nil {
+		update_time = 60
+	}
+
 	flag.Parse()
 
 	e := echo.New()
+	e.HideBanner = true
+	fmt.Println(` ___  ________  ________  ________  ___      ___                         ________  ________  ___  ________  ___       __   ________  _________  ________  ___  ___`)
+	fmt.Println(`|\  \|\   __  \|\   ____\|\   ____\|\  \    /  /|                       |\   ____\|\   __  \|\  \|\   ___ \|\  \     |\  \|\   __  \|\___   ___\\   ____\|\  \|\  \`)
+	fmt.Println(`\ \  \ \  \|\  \ \  \___|\ \  \___|\ \  \  /  / /     ____________      \ \  \___|\ \  \|\  \ \  \ \  \_|\ \ \  \    \ \  \ \  \|\  \|___ \  \_\ \  \___|\ \  \\\  \`)
+	fmt.Println(` \ \  \ \  \\\  \ \_____  \ \  \    \ \  \/  / /     |\____________\     \ \  \  __\ \   _  _\ \  \ \  \ \\ \ \  \  __\ \  \ \   __  \   \ \  \ \ \  \    \ \   __  \`)
+	fmt.Println(`  \ \  \ \  \\\  \|____|\  \ \  \____\ \    / /      \|____________|      \ \  \|\  \ \  \\  \\ \  \ \  \_\\ \ \  \|\__\_\  \ \  \ \  \   \ \  \ \ \  \____\ \  \ \  \`)
+	fmt.Println(`   \ \__\ \_______\____\_\  \ \_______\ \__/ /                             \ \_______\ \__\\ _\\ \__\ \_______\ \____________\ \__\ \__\   \ \__\ \ \_______\ \__\ \__\`)
+	fmt.Println(`    \|__|\|_______|\_________\|_______|\|__|/                               \|_______|\|__|\|__|\|__|\|_______|\|____________|\|__|\|__|    \|__|  \|_______|\|__|\|__|`)
+	fmt.Println(`                  \|_________|`)
 
+	host_rune_count := len(*host)
+	additionalPadding := "           "
+	padding := ""
+	for len(padding) < 50-host_rune_count {
+		padding += " "
+	}
+	fmt.Printf(Blue+"\n%s%s:%s\n"+Reset, padding+additionalPadding, *host, *port)
+	fmt.Printf("\n       Monitoring %v solar sites with a DNC of "+Red+"%vkW"+Reset+", extrapolating for a total islands solar capacity of "+Red+"%vkW"+Reset+"\n", monitored_count, monitored_DNC, est_DNC)
+	fmt.Printf("\n                                     Updating via server sent events every "+Red+"%v seconds\n\n%s"+Reset, update_time, padding)
 	e.Use(middleware.Recover())
 
 	e.GET("/sse", func(c echo.Context) error {
@@ -108,7 +156,7 @@ func main() {
 			return nil
 		}
 
-		ticker := time.NewTicker(60 * time.Second)
+		ticker := time.NewTicker(time.Duration(update_time) * time.Second)
 		defer ticker.Stop()
 
 		for {
@@ -176,6 +224,42 @@ func main() {
 		return c.JSON(http.StatusOK, site_data)
 	})
 
+	e.GET("/setup", func(c echo.Context) error {
+		w := c.Response()
+		w.Header().Set("Access-Control-Allow-Origin", "*")
+
+		setup_data := setupData{
+			SiteCount:      CountSites(*username, *password, *prom_url),
+			MonitoredCount: monitored_count,
+			Dnc:            monitored_DNC,
+			Enc:            est_DNC,
+			UpdateTime:     update_time,
+		}
+
+		return c.JSON(http.StatusOK, setup_data)
+	})
+
+	e.GET("/health", func(c echo.Context) error {
+		w := c.Response()
+		w.Header().Set("Access-Control-Allow-Origin", "*")
+
+		status := monitored_count == CountSites(*username, *password, *prom_url)
+
+		if status {
+			return c.Blob(http.StatusOK, "", []byte("1"))
+		}
+
+		return c.Blob(http.StatusOK, "", []byte("1"))
+	})
+
 	listen_on := fmt.Sprintf("%s:%s", *host, *port)
 	e.Logger.Fatal(e.Start(listen_on))
+}
+
+type setupData struct {
+	SiteCount      int `json:"siteCount"`
+	MonitoredCount int `json:"monitoredCount"`
+	Dnc            int `json:"dnc"`
+	Enc            int `json:"enc"`
+	UpdateTime     int `json:"updateTime"`
 }

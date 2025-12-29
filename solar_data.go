@@ -676,3 +676,33 @@ func FetchPeriodData(username string, password string, prometheusURL string, num
 
 	return
 }
+
+func CountSites(username string, password string, prometheusURL string) int {
+	query := fmt.Sprintf("count(%s)", actual_power_metric)
+	params := url.Values{}
+	params.Add("query", query)
+	queryURL := prometheusURL + "?" + params.Encode()
+	req, err := http.NewRequest("GET", queryURL, nil)
+	if err != nil {
+		return -1
+	}
+	req.SetBasicAuth(username, password)
+	client := &http.Client{}
+	resp, err := client.Do(req)
+	if err != nil {
+		return -1
+	}
+	defer resp.Body.Close()
+
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return -1
+	}
+
+	var promResp PrometheusSnapshotResponse
+	err = json.Unmarshal(body, &promResp)
+	if err != nil {
+		return -1
+	}
+	return int(promResp.Data.Result[0].GetValue())
+}

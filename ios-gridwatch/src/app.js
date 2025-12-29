@@ -103,7 +103,8 @@ makeModal(siteDialog,null,"closeSiteOverview")
 makeModal(explainTotals,"explainTotalsLink","closeExplainTotals")
 makeModal(explainRanks,"explainRanksLink","closeExplainRanks")
 
-
+//display server constants
+fetchSetupValues()
 //initialise state
 fetchCombinedSolarData()
 
@@ -668,6 +669,28 @@ function fetchCombinedSolarData(){
                     }
                 }))
                 drawAverageChart()
+            }
+        })
+    })
+}
+
+function fetchSetupValues(){
+    fetch(`${server}/setup`).then((res)=>{
+        res.json().then((data4)=>{
+            if(data4?.siteCount>-1){
+                document.querySelectorAll(".site-count").forEach(e=>{
+                    e.textContent=data4.siteCount
+                })
+            }
+            if(data4?.dnc){
+                document.querySelectorAll(".dnc").forEach(e=>{
+                    e.textContent=data4.dnc
+                })
+            }
+            if(data4?.enc){
+                document.querySelectorAll(".enc").forEach(e=>{
+                    e.textContent=data4.enc
+                })
             }
         })
     })
