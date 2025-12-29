@@ -4,8 +4,8 @@ import { averageWinterDay } from "./averageWinterDay"
 import { averageDay } from "./averageDay"
 import { highestDemand } from "./highestDemand"
 import { lowestDemand } from "./lowestDemand"
-import { twoSTDsAbove } from "./twoSTDsAbove"
-import { twoSTDsBelow } from "./twoSTDsBelow"
+import { fifthCentile } from "./fifthCentile"
+import { ninetyfifthCentile } from "./ninetyfifthCentile"
 import { roundUpToQuarterSignificant } from "./mathematicalFunctions"
 import { initDropdown } from "./dropdown"
 import { Float64RingBuffer } from "./ringBuffer"
@@ -76,7 +76,7 @@ const legend={
     max:document.getElementById("legend_max"),
     summer:document.getElementById("legend_summer"),
     winter:document.getElementById("legend_winter"),
-    std:document.getElementById("legend_std"),
+    centiles:document.getElementById("legend_centiles"),
     solar:document.getElementById("legend_solar"),
     max_value:{
         average:averageDay.reduce((a,b)=>Math.max(a,b.y),0),
@@ -84,7 +84,7 @@ const legend={
         max:highestDemand.reduce((a,b)=>Math.max(a,b.y),0),
         summmer:averageSummerDay.reduce((a,b)=>Math.max(a,b.y),0),
         winter:averageWinterDay.reduce((a,b)=>Math.max(a,b.y),0),
-        standard_deviation:twoSTDsBelow.reduce((a,b)=>Math.max(a,b.y),0),
+        centiles:ninetyfifthCentile.reduce((a,b)=>Math.max(a,b.y),0),
     }
 }
 const averagedDataTransitionX=referenceDay().valueOf()
@@ -121,7 +121,7 @@ function drawAverageChart(){
         legend.max.checked?legend.max_value.max:0,
         legend.summer.checked?legend.max_value.summmer:0,
         legend.winter.checked?legend.max_value.winter:0,
-        legend.std.checked?legend.max_value.standard_deviation:0
+        legend.centiles.checked?legend.max_value.centiles:0
     ))
     const noLine=[{x:referenceDay(),y:0},{x:referenceDay().valueOf()+1,y:0}]
     const solarData=legend.solar.checked?combinedSolarData.getValues():noLine;
@@ -130,8 +130,8 @@ function drawAverageChart(){
     const now={name:'Now',data:legend.now.checked?nowLine:noLine}
     const summer={name:'Average Summer',data:legend.summer.checked?averageSummerDay:noLine}
     const winter={name:'Average Winter',data:legend.winter.checked?averageWinterDay:noLine}
-    const low={name:'Two Standard Deviations Below',data:legend.std.checked?twoSTDsBelow:noLine}
-    const high={name:'Two Standard Deviations Above',data:legend.std.checked?twoSTDsAbove:noLine}
+    const low={name:'5th percentile',data:legend.centiles.checked?fifthCentile:noLine}
+    const high={name:'9th percentile',data:legend.centiles.checked?ninetyfifthCentile:noLine}
     const solar={name:'Solar',data:solarData}
     const lowest={name:'Lowest',data:legend.min.checked?lowestDemand:noLine}
     const highest={name:'Average Winter',data:legend.max.checked?highestDemand:noLine}
