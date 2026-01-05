@@ -686,6 +686,7 @@ func CountSites(username string, password string, prometheusURL string) int {
 	if err != nil {
 		return -1
 	}
+	log.Print(queryURL)
 	req.SetBasicAuth(username, password)
 	client := &http.Client{}
 	resp, err := client.Do(req)
@@ -694,7 +695,6 @@ func CountSites(username string, password string, prometheusURL string) int {
 	}
 	defer resp.Body.Close()
 
-	log.Println("mid CountSites")
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
 		return -1
