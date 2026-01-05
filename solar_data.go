@@ -705,5 +705,10 @@ func CountSites(username string, password string, prometheusURL string) int {
 	if err != nil {
 		return -1
 	}
-	return int(promResp.Data.Result[0].GetValue())
+	if len(promResp.Data.Result) > 0 {
+		return int(promResp.Data.Result[0].GetValue())
+	} else {
+		log.Printf("%v", promResp)
+		return 0
+	}
 }
