@@ -249,7 +249,7 @@ func main() {
 			return c.Blob(http.StatusOK, "", []byte("1"))
 		}
 
-		return c.Blob(http.StatusOK, "", []byte("1"))
+		return c.Blob(http.StatusOK, "", []byte("0"))
 	})
 
 	listen_on := fmt.Sprintf("%s:%s", *host, *port)
