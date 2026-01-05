@@ -228,6 +228,7 @@ func main() {
 		w := c.Response()
 		w.Header().Set("Access-Control-Allow-Origin", "*")
 
+		println("pre CountSites")
 		setup_data := setupData{
 			SiteCount:      CountSites(*username, *password, *prom_url),
 			MonitoredCount: monitored_count,
@@ -235,7 +236,7 @@ func main() {
 			Enc:            est_DNC,
 			UpdateTime:     update_time,
 		}
-
+		println("post CountSites")
 		return c.JSON(http.StatusOK, setup_data)
 	})
 

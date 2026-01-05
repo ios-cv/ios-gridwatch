@@ -694,6 +694,7 @@ func CountSites(username string, password string, prometheusURL string) int {
 	}
 	defer resp.Body.Close()
 
+	log.Println("mid CountSites")
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
 		return -1
