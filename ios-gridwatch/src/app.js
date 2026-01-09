@@ -210,8 +210,16 @@ function drawSiteGraph(recreateGraph=false){
         if(Object.keys(sitePeriodData).length>0){
             sitePeriodData[period.toString()].forEach(site=>{
                 const spacelessName=site.name.replaceAll(" ","")
-                if(document.querySelector("#"+spacelessName+"_checkbox").checked){
-                    series.push(site.data.map((d)=>{return{x:d[0],y:d[1]}}))
+                if(site?.data && document.querySelector("#"+spacelessName+"_checkbox").checked){
+                    series.push(site.data.map((d)=>{
+                        if(d.length==2)
+                            {
+                                return{x:d[0],y:d[1]}
+                            }
+                        else{
+                            return null
+                        }
+                        }))
                 }
                 else{
                     series.push(noLine)
@@ -314,7 +322,7 @@ function updateSiteOverview(recreateGraph=false) {
         }
     })
     let selectedPeriodCheckbox=document.querySelector("[name='period']:checked")
-    if (!selectedPeriodCheckbox){
+    if (!selectedPeriodCheckbox && firstAvaialble){
         selectedPeriodCheckbox=firstAvaialble
         firstAvaialble.checked=true
     }
