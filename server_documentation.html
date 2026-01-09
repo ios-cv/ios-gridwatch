@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gridwatch server documention</title>
+</head>
+<body>
+    <div><h2>Flags</h2>
+    <ul>
+        <li>host</li>
+        <li>port</li>
+        <li><span>username</span> for accessing prometheus server</li>
+        <li><span>password</span> for accessing prometheus server</li>
+        <li><span>prometheus url</span></li>
+        <li><span>estimated net capacity</span> the estimated net capacity of unmonitored sites</li>
+        <li><span>declared net capacity</span> the total dnc of the monitored sites</li>
+        <li><span>site count</span> the number of monitored sites</li>
+        <li><span>update time</span> frequency of sse update messages</li>
+    </ul></div>
+    <div>
+        <h2>Endpoints</h2>
+    <ul>
+        <li><span>/health</span> returns 1 if the prometheus server is providing data for &lt;site count&gt; sites, 0 otherwise <span class="feature-needed">configurable time for stale data</span></li>
+        <li><span>/setup</span> returns json {
+  "siteCount": number of sites actually responding from prometheus,
+  "monitoredCount": &lt;site count&gt;,
+  "dnc": &lt;dnc&gt;,
+  "enc": &lt;enc&gt;,
+  "updateTime": &lt;update time&gt;
+}</li>
+        <li><span>/sse</span> sends json every &lt;update time&gt; seconds:
+            {
+                "total_kwh":the sum of export all monitored export meters,
+                "day_kwh":the sum of any increase in export meters multiplied to estimate total production since midnight,
+                "week_kwh":the sum of any increase in export meters multiplied to estimate total production in the last rolling week,
+                "year_kwh":the sum of any increase in export meters multiplied to estimate total production in the last rolling year,
+                "current_w":the sum of all sites current generation multiplied to estimate current generation for all of Scilly,
+                "sites":[
+                {
+                    "name":The "site" label from Prometheus,
+                    "snapshot":the current watts this site is producing,
+                    "today":the total kWh this site has produced since midnight,
+                    "week":the total kWh this site has produced in the last 7 * 24hrs,
+                    "year":the total kWh this site has produced in the last 365 * 24hrs,
+                    "max":the highest watts this site has produced in the last 2 years
+                },
+                {
+                    "name":"Unmonitored (estimated)" - estimates based on all monitored sites,
+                    "snapshot":the current watts,
+                    "today":the estimated kWh since midnight,
+                    "week":the estimated kWh in the last 7 * 24hrs,
+                    "year":the estimated kWh in the last 365 * 24hrs,
+                    "max":the estimated highest watts in the last 2 years
+                }
+                ]
+            }</li>
+        <li><span>/site/:sitename|all/:period</span> returns json:</li>
+        <li>/site/all</li>
+    </ul></div>
+</body>
+</html>
