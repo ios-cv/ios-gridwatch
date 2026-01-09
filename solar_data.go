@@ -14,9 +14,9 @@ import (
 )
 
 const generation_metric_name = "total_import"
-const generation_metric = generation_metric_name + "{purpose=\"solar\"}"
+const generation_metric = generation_metric_name + "{purpose=\"solar\", job=\"meter-server\"}"
 const actual_power_metric_name = "total_act_power"
-const actual_power_metric = actual_power_metric_name + "{purpose=\"solar\"}"
+const actual_power_metric = actual_power_metric_name + "{purpose=\"solar\", job=\"meter-server\"}"
 
 type SolarData struct {
 	Total_kwh float32    `json:"total_kwh"`
@@ -521,8 +521,8 @@ func FetchSitePeriodData(username string, password string, prometheusURL string,
 	var query1, query2, query3, query4, query5 string
 	sitePeriodData.Name = strings.ReplaceAll(site, "+", " ")
 	if sitePeriodData.Name != "" {
-		query1 = fmt.Sprintf("%s{purpose=\"solar\", site=\"%s\"}", generation_metric_name, sitePeriodData.Name)
-		query2 = fmt.Sprintf("%s{purpose=\"solar\", site=\"%s\"}", actual_power_metric_name, sitePeriodData.Name)
+		query1 = fmt.Sprintf("last_over_time(%s{purpose=\"solar\", site=\"%s\", job=\"meter-server\"}[1y])", generation_metric_name, sitePeriodData.Name)
+		query2 = fmt.Sprintf("last_over_time(%s{purpose=\"solar\", site=\"%s\", job=\"meter-server\"}[1y])", actual_power_metric_name, sitePeriodData.Name)
 		if numberOfDays < 1 {
 			numberOfDays = 1
 		}
@@ -537,9 +537,9 @@ func FetchSitePeriodData(username string, password string, prometheusURL string,
 		default:
 			resolution = "24h"
 		}
-		query3 = fmt.Sprintf("avg_over_time(%s{purpose=\"solar\", site=\"%s\"}[%s])[%vd:%s]", actual_power_metric_name, sitePeriodData.Name, resolution, numberOfDays, resolution)
-		query4 = fmt.Sprintf("delta(%s{purpose=\"solar\", site=\"%s\"}[%vd])", generation_metric_name, sitePeriodData.Name, numberOfDays)
-		query5 = fmt.Sprintf("max_over_time(%s{purpose=\"solar\", site=\"%s\"}[%vd])", actual_power_metric_name, sitePeriodData.Name, numberOfDays)
+		query3 = fmt.Sprintf("avg_over_time(%s{purpose=\"solar\", site=\"%s\", job=\"meter-server\"}[%s])[%vd:%s]", actual_power_metric_name, sitePeriodData.Name, resolution, numberOfDays, resolution)
+		query4 = fmt.Sprintf("delta(%s{purpose=\"solar\", site=\"%s\", job=\"meter-server\"}[%vd])", generation_metric_name, sitePeriodData.Name, numberOfDays)
+		query5 = fmt.Sprintf("max_over_time(%s{purpose=\"solar\", site=\"%s\", job=\"meter-server\"}[%vd])", actual_power_metric_name, sitePeriodData.Name, numberOfDays)
 	} else {
 		return SitePeriodData{}, errors.New("you must include a site name")
 	}
