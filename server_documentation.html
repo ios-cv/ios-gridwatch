@@ -55,8 +55,40 @@
                 }
                 ]
             }</li>
-        <li><span>/site/:sitename|all/:period</span> returns json:</li>
-        <li>/site/all</li>
+        <li><span>/site/:sitename/:period</span> returns json:
+  {
+    "name": "site" from prometheus,
+    "meter": current meter reading,
+    "current": the current output in watts,
+    "generation_in_period": increase of export meter during period in kWh,
+    "max": highest output in period in watts,
+    "data": [
+      [timestamp in seconds, value in watts
+      ]...
+    ]
+  }
+</li>
+<li><span>/site/all/:period</span> returns json:[
+  {
+    "name": "site" from prometheus,
+    "meter": current meter reading,
+    "current": the current output in watts,
+    "generation_in_period": increase of export meter during period in kWh,
+    "max": highest output in period in watts,
+    "data": [
+      [timestamp in seconds, value in watts
+      ]...
+    ]
+  }
+]</li>
+        <li><span>/site/all</span> returns json: {
+  "metric": {
+
+  },
+  "values": [
+    [timestamp, value in watts],..., 
+  ] this array represents the combined output of all solar including estimated panels at 60 second intervals since midnight
+}</li>
     </ul></div>
 </body>
 </html>
