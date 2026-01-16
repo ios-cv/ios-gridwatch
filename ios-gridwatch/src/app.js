@@ -1,4 +1,4 @@
-import { LineChart, FixedScaleAxis } from "chartist"
+import { LineChart, FixedScaleAxis, Interpolation } from "chartist"
 import { averageSummerDay } from "./averageSummerDay"
 import { averageWinterDay } from "./averageWinterDay"
 import { averageDay } from "./averageDay"
@@ -243,7 +243,8 @@ function drawSiteGraph(recreateGraph=false){
                 },
                 axisY:{
                     labelInterpolationFnc: value=>`${value}`
-                }
+                },
+                lineSmooth:Interpolation.none({fillHoles:false})
             }
             );
         }
@@ -333,14 +334,16 @@ function updateSiteOverview(recreateGraph=false) {
     const lengthOfData=dataForPeriod.length;
     const lastDataPoint=dataForPeriod[lengthOfData-1];
     const ageOfData=Date.now()-lastDataPoint[0];
-    let dataStale=3600000 // 1hr in ms
+    let dataStale=300000 // 5 min in ms
     switch (selectedPeriod){
         case "7":
-            dataStale=3*3600000; //3hrs in ms
+            dataStale=30*60000; //30 min in ms
             break;
         case "31":
+            dataStale=3*60*60000 //3hrs in ms
+            break;
         case "365":
-            dataStale=6*3600000; //6hrs in ms
+            dataStale=12*60*60000; //12hrs in ms
             break;
         default:
             break;
@@ -556,50 +559,15 @@ function handleCardClick(e){
 //Fetch Functions
 function fetchOnePeriodData(period){
     const address=`${server}/site/all/${period}`
+    console.log(address)
     fetch(address).then((res)=>{
         res.json().then((data3)=>{
+            console.log(data3)
             if(data3.length>0){
                 data3.forEach(d3=>{
                     if(d3.data){
                         let periodIndex=periods.indexOf(Number(period))
-                        if(periodIndex<0)periodIndex=periodExpectedGaps.length-1
-                        const BIG_GAP = periodExpectedGaps[periodIndex]*10;
-
-                        // New array so we don't mutate while iterating
-                        let filled = [];
-
-                        //check 
-                        const first=d3.data[0]
-                        first[0]*=1000 //convert seconds to ms
-                        const now=Date.now().valueOf()
-                        const startOfPeriod=now-(86400000*periods[periodIndex]-BIG_GAP/5)
-                        if(first[0]>startOfPeriod){
-                            filled.push([startOfPeriod,0])
-                            filled.push([first[0]-1,0])
-                        }
-                        filled.push(first);
-
-                        let last = d3.data[0];
-
-                        for (let i = 1; i < d3.data.length; i++) {
-                            const curr = d3.data[i];
-                        
-                            const lastTime = last[0]*1000;
-                            const currTime = curr[0]*1000;
-
-                            const gapSize=currTime - lastTime
-                            
-                            if (gapSize > BIG_GAP) {
-                                filled.push([lastTime + 1,0]);
-                                filled.push([currTime - 1,0]);
-                            }
-
-                            filled.push([currTime,curr[1]]);
-
-                            last = curr;
-                        }
-
-                        d3.data = filled;
+                        d3.data=identifyMissingData(d3.data,periodIndex)
                     }
                 })
                 sitePeriodData[period.toString()]=data3;
@@ -616,43 +584,7 @@ function fetchAllPeriodData(periodIndex){
             if(data3.length>0){
                 data3.forEach(d3=>{
                     if(d3.data){
-                        const BIG_GAP = periodExpectedGaps[periodIndex]*10;
-
-                        // New array so we don't mutate while iterating
-                        let filled = [];
-
-                        //check 
-                        const first=d3.data[0]
-                        first[0]*=1000 //convert seconds to ms
-                        const now=Date.now().valueOf()
-                        const startOfPeriod=now-(86400000*periods[periodIndex]-BIG_GAP/5)
-                        if(first[0]>startOfPeriod){
-                            filled.push([startOfPeriod,0])
-                            filled.push([first[0]-1,0])
-                        }
-                        filled.push(first);
-
-                        let last = d3.data[0];
-
-                        for (let i = 1; i < d3.data.length; i++) {
-                            const curr = d3.data[i];
-                        
-                            const lastTime = last[0]*1000;
-                            const currTime = curr[0]*1000;
-
-                            const gapSize=currTime - lastTime
-                            
-                            if (gapSize > BIG_GAP) {
-                                filled.push([lastTime + 1,0]);
-                                filled.push([currTime - 1,0]);
-                            }
-
-                            filled.push([currTime,curr[1]]);
-
-                            last = curr;
-                        }
-
-                        d3.data = filled;
+                        d3.data = identifyMissingData(d3.data,periodIndex);
                     }
                 })
                 sitePeriodData[periods[periodIndex].toString()]=data3;
@@ -705,6 +637,47 @@ function fetchSetupValues(){
 }
 
 //Helper functions
+function identifyMissingData(data,periodIndex){
+    if(periodIndex<0)periodIndex=periodExpectedGaps.length-1
+    const BIG_GAP = periodExpectedGaps[periodIndex]+10000;
+
+    // New array so we don't mutate while iterating
+    let filled = [];
+
+    //check 
+    const first=data[0]
+    first[0]*=1000 //convert seconds to ms
+    const now=Date.now().valueOf()
+    const startOfPeriod=now-(86400000*periods[periodIndex]-BIG_GAP/5)
+    if(first[0]>startOfPeriod){
+        filled.push([startOfPeriod,null])
+        filled.push([first[0]-1,null])
+    }
+    filled.push(first);
+
+    let last = data[0];
+
+    for (let i = 1; i < data.length; i++) {
+        const curr = data[i];
+    
+        const lastTime = last[0]*1000;
+        const currTime = curr[0]*1000;
+
+        const gapSize=currTime - lastTime
+        
+        if (gapSize > BIG_GAP) {
+            filled.push([lastTime + 1,null]);
+            filled.push([currTime - 1,null]);
+        }
+
+        filled.push([currTime,curr[1]]);
+
+        last = curr;
+    }
+
+    return filled;
+}
+
 function demandAtTime(pointInTime){
     const referenceTime=referenceDay(pointInTime)
     let index=0
