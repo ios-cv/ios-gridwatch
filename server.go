@@ -97,8 +97,20 @@ func main() {
 	if err != nil {
 		update_time = 60
 	}
+	energy_local_sites_env := os.Getenv("GRIDWATCH_ENERGY_LOCAL_SITES")
+	if energy_local_sites_env == "" {
+		energy_local_sites_env = ""
+	}
+	energy_local_sites_flag := flag.String("energylocalsites", energy_local_sites_env, "Comma separated list of Energy Local sites to pull data for energy local endpoints.")
+	var energy_local_sites []string
 
 	flag.Parse()
+	if len(*energy_local_sites_flag) > 0 {
+		fmt.Println(*energy_local_sites_flag)
+		for _, v := range strings.Split(*energy_local_sites_flag, ",") {
+			energy_local_sites = append(energy_local_sites, strings.TrimSpace(v))
+		}
+	}
 
 	e := echo.New()
 	e.HideBanner = true
@@ -120,6 +132,9 @@ func main() {
 	fmt.Printf(Blue+"\n%s%s:%s\n"+Reset, padding+additionalPadding, *host, *port)
 	fmt.Printf("\n       Monitoring %v solar sites with a DNC of "+Red+"%vkW"+Reset+", extrapolating for a total islands solar capacity of "+Red+"%vkW"+Reset+"\n", monitored_count, monitored_DNC, est_DNC)
 	fmt.Printf("\n                                     Updating via server sent events every "+Red+"%v seconds\n\n%s"+Reset, update_time, padding)
+	for _, site := range energy_local_sites {
+		fmt.Printf("                                          Added Energy Local site: "+Green+"%s\n"+Reset, site)
+	}
 	e.Use(middleware.Recover())
 
 	e.GET("/sse", func(c echo.Context) error {
@@ -249,6 +264,31 @@ func main() {
 		}
 
 		return c.Blob(http.StatusOK, "", []byte("0"))
+	})
+
+	e.GET("/energylocalday", func(c echo.Context) error {
+		w := c.Response()
+		w.Header().Set("Access-Control-Allow-Origin", "*")
+
+		data, err := GetEnergyLocalDay(*username, *password, *prom_url, energy_local_sites)
+		if err != nil {
+			log.Print("Error: ", err)
+			return c.JSON(http.StatusBadGateway, map[string]string{"message": "bad query"})
+		}
+
+		return c.JSON(http.StatusOK, data)
+	})
+
+	e.GET("/energylocalinstant", func(c echo.Context) error {
+		w := c.Response()
+		w.Header().Set("Access-Control-Allow-Origin", "*")
+
+		data, err := GetEnergyLocalWattage(*username, *password, *prom_url, energy_local_sites)
+		if err != nil {
+			log.Print("Error: ", err)
+			return c.JSON(http.StatusBadGateway, map[string]string{"message": "bad query"})
+		}
+		return c.JSON(http.StatusOK, data)
 	})
 
 	listen_on := fmt.Sprintf("%s:%s", *host, *port)

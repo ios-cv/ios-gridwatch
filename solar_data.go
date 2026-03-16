@@ -17,6 +17,7 @@ const generation_metric_name = "total_import"
 const generation_metric = generation_metric_name + "{purpose=\"solar\", job=\"meter-server\"}"
 const actual_power_metric_name = "total_act_power"
 const actual_power_metric = actual_power_metric_name + "{purpose=\"solar\", job=\"meter-server\"}"
+const energy_local_day_metric_name = "total_export"
 
 type SolarData struct {
 	Total_kwh float32    `json:"total_kwh"`
@@ -709,4 +710,91 @@ func CountSites(username string, password string, prometheusURL string) int {
 	} else {
 		return 0
 	}
+}
+
+func GetEnergyLocalWattage(username string, password string, prometheusURL string, siteList []string) (float64, error) {
+	sites := strings.Join(siteList, "|")
+	query1 := fmt.Sprintf("sum(%s{purpose=\"solar\",job=\"meter-server\",site=~\"%s\"})", actual_power_metric_name, sites)
+
+	params := url.Values{}
+	params.Add("query", query1)
+	queryURL := prometheusURL + "?" + params.Encode()
+	req, err := http.NewRequest("GET", queryURL, nil)
+	if err != nil {
+		return 0, err
+	}
+	req.SetBasicAuth(username, password)
+	client := &http.Client{}
+	resp, err := client.Do(req)
+	if err != nil {
+		return 0, err
+	}
+	defer resp.Body.Close()
+
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return 0, err
+	}
+	var promResp PrometheusSnapshotResponse
+	err = json.Unmarshal(body, &promResp)
+	if err != nil {
+		return 0, err
+	}
+	if len(promResp.Data.Result) > 0 {
+		return promResp.Data.Result[0].GetValue(), nil
+	} else {
+		return 0, errors.New("empty dataset for query:" + query1)
+	}
+}
+
+type MeterReading struct {
+	Time  float64 `json:"time"`
+	Value float64 `json:"value"`
+}
+type MeterIncreases struct {
+	Increases []MeterReading `json:"increases"`
+}
+
+func GetEnergyLocalDay(username string, password string, prometheusURL string, siteList []string) (MeterIncreases, error) {
+	sites := strings.Join(siteList, "|")
+	now := time.Now()
+	end := now.Truncate(30 * time.Minute)
+	start := end.Add(-24 * time.Hour)
+	query := fmt.Sprintf("sum(%s{purpose=\"solar\",job=\"meter-server\",site=~\"%s\"})", energy_local_day_metric_name, sites)
+	params := url.Values{}
+	params.Add("query", query)
+	params.Add("start", string(start.Format("2006-01-02T15:04:05"))+"Z")
+	params.Add("end", string(end.Format("2006-01-02T15:04:05"))+"Z")
+	params.Add("step", "1800")
+	queryURL := prometheusURL + "_range?" + params.Encode()
+
+	req, err := http.NewRequest("GET", queryURL, nil)
+	if err != nil {
+		return MeterIncreases{}, err
+	}
+	req.SetBasicAuth(username, password)
+	client := &http.Client{}
+	resp, err := client.Do(req)
+	if err != nil {
+		return MeterIncreases{}, err
+	}
+	defer resp.Body.Close()
+
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return MeterIncreases{}, err
+	}
+	var promResp PrometheusRangeResponse
+	err = json.Unmarshal(body, &promResp)
+	if err != nil {
+		return MeterIncreases{}, err
+	}
+
+	my_values := []MeterReading{}
+	for _, value := range promResp.Data.Result[0].Values {
+		v, _ := strconv.ParseFloat(value[1].(string), 64)
+
+		my_values = append(my_values, MeterReading{Time: value[0].(float64), Value: v})
+	}
+	return MeterIncreases{Increases: my_values}, nil
 }
