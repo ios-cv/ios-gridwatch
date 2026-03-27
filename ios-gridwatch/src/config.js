@@ -1,1 +1,1 @@
-export const server="https://home.harrylegg.co.uk/solar";
+export const server="https://round.infra.ioscv.co.uk";
