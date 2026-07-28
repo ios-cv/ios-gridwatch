@@ -17,7 +17,7 @@ const generation_metric_name = "total_import"
 const generation_metric = generation_metric_name + "{purpose=\"solar\", job=~\".*meter-server$\"}"
 const actual_power_metric_name = "total_act_power"
 const actual_power_metric = actual_power_metric_name + "{purpose=\"solar\", job=~\".*meter-server$\"}"
-const energy_local_day_metric_name = "total_export"
+const energy_local_day_metric_name = "total_import"
 
 type SolarData struct {
 	Total_kwh float32    `json:"total_kwh"`
