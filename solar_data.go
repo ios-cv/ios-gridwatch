@@ -759,7 +759,7 @@ func GetEnergyLocalDay(username string, password string, prometheusURL string, s
 	sites := strings.Join(siteList, "|")
 	now := time.Now()
 	end := now.Truncate(30 * time.Minute)
-	start := end.Add(-24 * time.Hour)
+	start := end.Add(-1410 * time.Minute)
 	query := fmt.Sprintf("sum(delta(%s{purpose=\"solar\",job=~\".*meter-server$\",site=~\"%s\"}[30m]))", energy_local_day_metric_name, sites)
 	params := url.Values{}
 	params.Add("query", query)
