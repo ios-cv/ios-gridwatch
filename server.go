@@ -283,12 +283,12 @@ func main() {
 		w := c.Response()
 		w.Header().Set("Access-Control-Allow-Origin", "*")
 
-		data, err := GetEnergyLocalWattage(*username, *password, *prom_url, energy_local_sites)
+		data, timestamp, err := GetEnergyLocalWattage(*username, *password, *prom_url, energy_local_sites)
 		if err != nil {
 			log.Print("Error: ", err)
 			return c.JSON(http.StatusBadGateway, map[string]string{"message": "bad query"})
 		}
-		return c.JSON(http.StatusOK, data)
+		return c.JSON(http.StatusOK, map[string]interface{}{"snapshot_watts": data, "snapshot_time": timestamp})
 	})
 
 	listen_on := fmt.Sprintf("%s:%s", *host, *port)
