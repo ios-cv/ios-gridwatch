@@ -231,6 +231,9 @@ func (p PrometheusSnapshotData) GetValue() float64 {
 	value, _ := strconv.ParseFloat(p.Value[1].(string), 64)
 	return value
 }
+func (p PrometheusSnapshotData) GetTime() float64 {
+	return p.Value[0].(float64)
+}
 func (p PrometheusVectorData) GetValue() float64 {
 	value, _ := strconv.ParseFloat(p.Value[1].(string), 64)
 	return value
@@ -712,7 +715,7 @@ func CountSites(username string, password string, prometheusURL string) int {
 	}
 }
 
-func GetEnergyLocalWattage(username string, password string, prometheusURL string, siteList []string) (float64, error) {
+func GetEnergyLocalWattage(username string, password string, prometheusURL string, siteList []string) (float64, float64, error) {
 	sites := strings.Join(siteList, "|")
 	query1 := fmt.Sprintf("sum(%s{purpose=\"solar\",job=~\".*meter-server$\",site=~\"%s\"})", actual_power_metric_name, sites)
 
@@ -721,29 +724,29 @@ func GetEnergyLocalWattage(username string, password string, prometheusURL strin
 	queryURL := prometheusURL + "?" + params.Encode()
 	req, err := http.NewRequest("GET", queryURL, nil)
 	if err != nil {
-		return 0, err
+		return 0, 0, err
 	}
 	req.SetBasicAuth(username, password)
 	client := &http.Client{}
 	resp, err := client.Do(req)
 	if err != nil {
-		return 0, err
+		return 0, 0, err
 	}
 	defer resp.Body.Close()
 
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
-		return 0, err
+		return 0, 0, err
 	}
 	var promResp PrometheusSnapshotResponse
 	err = json.Unmarshal(body, &promResp)
 	if err != nil {
-		return 0, err
+		return 0, 0, err
 	}
 	if len(promResp.Data.Result) > 0 {
-		return promResp.Data.Result[0].GetValue(), nil
+		return promResp.Data.Result[0].GetValue(), promResp.Data.Result[0].GetTime(), nil
 	} else {
-		return 0, errors.New("empty dataset for query:" + query1)
+		return 0, 0, errors.New("empty dataset for query:" + query1)
 	}
 }
 
