@@ -559,10 +559,8 @@ function handleCardClick(e){
 //Fetch Functions
 function fetchOnePeriodData(period){
     const address=`${server}/site/all/${period}`
-    console.log(address)
     fetch(address).then((res)=>{
         res.json().then((data3)=>{
-            console.log(data3)
             const mergedData=[]
             if(data3.length>0){
                 data3.forEach(d3=>{
