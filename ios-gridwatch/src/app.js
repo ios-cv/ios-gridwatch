@@ -563,14 +563,22 @@ function fetchOnePeriodData(period){
     fetch(address).then((res)=>{
         res.json().then((data3)=>{
             console.log(data3)
+            const mergedData=[]
             if(data3.length>0){
                 data3.forEach(d3=>{
                     if(d3.data){
                         let periodIndex=periods.indexOf(Number(period))
                         d3.data=identifyMissingData(d3.data,periodIndex)
+                        const existingSite=mergedData.find(s=>s.name===d3.name)
+                        if(existingSite){
+                            existingSite.data.push(...d3.data)
+                        }else{
+                            mergedData.push(d3)
+                        }
                     }
+
                 })
-                sitePeriodData[period.toString()]=data3;
+                sitePeriodData[period.toString()]=mergedData;
                 drawSiteGraph();
             }
         })
@@ -581,13 +589,20 @@ function fetchAllPeriodData(periodIndex){
     const address=`${server}/site/all/${periods[periodIndex]}`
     fetch(address).then((res)=>{
         res.json().then((data3)=>{
+            const mergedData=[]
             if(data3.length>0){
                 data3.forEach(d3=>{
                     if(d3.data){
                         d3.data = identifyMissingData(d3.data,periodIndex);
+                        const existingSite=mergedData.find(s=>s.name===d3.name)
+                        if(existingSite){
+                            existingSite.data.push(...d3.data)
+                        }else{
+                            mergedData.push(d3)
+                        }
                     }
                 })
-                sitePeriodData[periods[periodIndex].toString()]=data3;
+                sitePeriodData[periods[periodIndex].toString()]=mergedData;
                 document.querySelector(`[name='period'][value='${periods[periodIndex]}']`).disabled=false;
                 periodIndex++;
                 if(periodIndex<periods.length){
