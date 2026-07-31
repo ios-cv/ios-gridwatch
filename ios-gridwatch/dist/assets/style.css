@@ -271,52 +271,8 @@ div#demandGraph, div#siteGraph{
     stroke-width:1px;
 }
 #siteGraph, #siteSelection{
-    & .ct-series-a .ct-line{
+    & .ct-line{
         stroke:var(--airport);
-    }
-    & .ct-series-b .ct-line{
-        stroke:var(--airport);
-        filter:hue-rotate(0.48turn);
-    }
-    & .ct-series-c .ct-line{
-        stroke:var(--airport);
-        filter:hue-rotate(0.16turn);
-    }
-    & .ct-series-d .ct-line{
-        stroke:var(--airport);
-        filter:hue-rotate(0.64turn);
-    }
-    & .ct-series-e .ct-line{
-        stroke:var(--airport);
-        filter:hue-rotate(0.32turn);
-    }
-    & .ct-series-f .ct-line{
-        stroke:var(--airport);
-        filter:hue-rotate(0.56turn);
-    }
-    & .ct-series-g .ct-line{
-        stroke:var(--airport);
-        filter:hue-rotate(0.08turn);
-    }
-    & .ct-series-h .ct-line{
-        stroke:var(--airport);
-        filter:hue-rotate(0.4turn);
-    }
-    & .ct-series-i .ct-line{
-        stroke:var(--airport);
-        filter:hue-rotate(0.24turn);
-    }
-    & .ct-series-j .ct-line{
-        stroke:var(--airport);
-        filter:hue-rotate(0.72turn);
-    }
-    & .ct-series-k .ct-line{
-        stroke:var(--airport);
-        filter:hue-rotate(0.8turn);
-    }
-    & .ct-series-l .ct-line{
-        stroke:var(--airport);
-        filter:hue-rotate(0.88turn);
     }
     & .ct-series-a{
         color:var(--airport);
