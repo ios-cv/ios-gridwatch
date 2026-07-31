@@ -219,6 +219,7 @@ type PrometheusVectorResponse struct {
 type PrometheusSnapshotData struct {
 	Metric struct {
 		Site string `json:"site"`
+		Job  string `json:"job"`
 	} `json:"metric"`
 	Value []interface{} `json:"value"`
 }
@@ -249,6 +250,7 @@ type PrometheusRangeData struct {
 	Metric struct {
 		Name string `json:"__name__"`
 		Site string `json:"site"`
+		Job  string `json:"job"`
 	} `json:"metric"`
 	Values [][]interface{} `json:"values"`
 }
@@ -426,6 +428,7 @@ func fetchPrometheusRangeQuery(username string, password string, prometheusURL s
 	if err != nil {
 		return []PrometheusRangeData{}, err
 	}
+	fmt.Printf("fetchPrometheusRangeQuery: %s\n", queryURL)
 	req.SetBasicAuth(username, password)
 	client := &http.Client{}
 	resp, err := client.Do(req)
@@ -448,6 +451,7 @@ func fetchPrometheusRangeQuery(username string, password string, prometheusURL s
 
 type SitePeriodData struct {
 	Name    string          `json:"name"`
+	Job     string          `json:"job"`
 	Meter   float64         `json:"meter"`
 	Current float64         `json:"current"`
 	Period  float64         `json:"generation_in_period"`
@@ -618,7 +622,7 @@ func FetchPeriodData(username string, password string, prometheusURL string, num
 		return sitePeriodData, errors.New("no results found")
 	}
 	for _, v := range meter {
-		siteData := SitePeriodData{Name: v.Metric.Site, Meter: v.GetValue()}
+		siteData := SitePeriodData{Name: v.Metric.Site, Job: v.Metric.Job, Meter: v.GetValue()}
 		sitePeriodData = append(sitePeriodData, siteData)
 	}
 
@@ -629,7 +633,7 @@ func FetchPeriodData(username string, password string, prometheusURL string, num
 
 	for _, v := range current_generation {
 		for i := range sitePeriodData {
-			if sitePeriodData[i].Name == v.Metric.Site {
+			if sitePeriodData[i].Name == v.Metric.Site && sitePeriodData[i].Job == v.Metric.Job {
 				sitePeriodData[i].Current = v.GetValue()
 				break
 			}
@@ -643,7 +647,7 @@ func FetchPeriodData(username string, password string, prometheusURL string, num
 
 	for _, v := range data {
 		for i := range sitePeriodData {
-			if sitePeriodData[i].Name == v.Metric.Site {
+			if sitePeriodData[i].Name == v.Metric.Site && sitePeriodData[i].Job == v.Metric.Job {
 				sitePeriodData[i].Data = v.Values
 				break
 			}
@@ -657,7 +661,7 @@ func FetchPeriodData(username string, password string, prometheusURL string, num
 
 	for _, v := range period_generation {
 		for i := range sitePeriodData {
-			if sitePeriodData[i].Name == v.Metric.Site {
+			if sitePeriodData[i].Name == v.Metric.Site && sitePeriodData[i].Job == v.Metric.Job {
 				sitePeriodData[i].Period = v.GetValue()
 				break
 			}
@@ -671,13 +675,16 @@ func FetchPeriodData(username string, password string, prometheusURL string, num
 
 	for _, v := range maximum {
 		for i := range sitePeriodData {
-			if sitePeriodData[i].Name == v.Metric.Site {
+			if sitePeriodData[i].Name == v.Metric.Site && sitePeriodData[i].Job == v.Metric.Job {
 				sitePeriodData[i].Max = v.GetValue()
 				break
 			}
 		}
 	}
-
+	fmt.Printf("\n\n ************************************ new period *********************************\n                          %d days\n", numberOfDays)
+	for i := range sitePeriodData {
+		fmt.Printf("Site: %s data: %v\n", sitePeriodData[i].Name, len(sitePeriodData[i].Data))
+	}
 	return
 }
 
