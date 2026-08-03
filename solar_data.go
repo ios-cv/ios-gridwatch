@@ -263,6 +263,22 @@ func (p PrometheusRangeData) GetValues() (return_values []float64) {
 	return return_values
 }
 
+func (p PrometheusRangeData) GetTimes() (return_times []int) {
+	for _, value := range p.Values {
+		t, _ := value[0].(int)
+		return_times = append(return_times, t)
+	}
+	return return_times
+}
+
+func (p PrometheusRangeData) GetLatestTimeValuePair() (time float64, value float64) {
+	if len(p.Values) > 0 {
+		time, _ = p.Values[len(p.Values)-1][0].(float64)
+		value, _ = strconv.ParseFloat(p.Values[len(p.Values)-1][1].(string), 64)
+	}
+	return
+}
+
 func fetchPrometheusSnapshotData(username string, password string, prometheusURL string, metric string, age string) ([]PrometheusSnapshotData, error) {
 	params := url.Values{}
 	params.Add("query", metric)
@@ -724,10 +740,9 @@ func CountSites(username string, password string, prometheusURL string) int {
 
 func GetEnergyLocalWattage(username string, password string, prometheusURL string, siteList []string) (float64, float64, error) {
 	sites := strings.Join(siteList, "|")
-	query1 := fmt.Sprintf("sum(%s{purpose=\"solar\",job=~\".*meter-server$\",site=~\"%s\"})", actual_power_metric_name, sites)
-
+	query := fmt.Sprintf("%s{purpose=\"solar\",job=\"cvpi-meter-server\",site=~\"%s\"}[30m]", actual_power_metric_name, sites)
 	params := url.Values{}
-	params.Add("query", query1)
+	params.Add("query", query)
 	queryURL := prometheusURL + "?" + params.Encode()
 	req, err := http.NewRequest("GET", queryURL, nil)
 	if err != nil {
@@ -745,15 +760,23 @@ func GetEnergyLocalWattage(username string, password string, prometheusURL strin
 	if err != nil {
 		return 0, 0, err
 	}
-	var promResp PrometheusSnapshotResponse
+	var promResp PrometheusRangeResponse
 	err = json.Unmarshal(body, &promResp)
 	if err != nil {
 		return 0, 0, err
 	}
 	if len(promResp.Data.Result) > 0 {
-		return promResp.Data.Result[0].GetValue(), promResp.Data.Result[0].GetTime(), nil
+		var sum, oldestTime float64 = 0, float64(time.Now().Unix())
+		for _, site := range promResp.Data.Result {
+			time, value := site.GetLatestTimeValuePair()
+			if time < oldestTime {
+				oldestTime = time
+			}
+			sum += value
+		}
+		return sum, oldestTime, nil
 	} else {
-		return 0, 0, errors.New("empty dataset for query:" + query1)
+		return 0, 0, errors.New("no sites reporting data from query: " + queryURL)
 	}
 }
 
