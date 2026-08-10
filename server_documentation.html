@@ -4,91 +4,43 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Gridwatch server documention</title>
+    <style>
+        .code {
+            background-color: #f0f0f0;
+            padding: 10px;
+            border-radius: 5px;
+            font-family: monospace;
+            border: 1px solid #ccc;
+            box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.1);
+            width:fit-content;
+        }
+    </style>
 </head>
 <body>
-    <div><h2>Flags</h2>
-    <ul>
-        <li>host</li>
-        <li>port</li>
-        <li><span>username</span> for accessing prometheus server</li>
-        <li><span>password</span> for accessing prometheus server</li>
-        <li><span>prometheus url</span></li>
-        <li><span>estimated net capacity</span> the estimated net capacity of unmonitored sites</li>
-        <li><span>declared net capacity</span> the total dnc of the monitored sites</li>
-        <li><span>site count</span> the number of monitored sites</li>
-        <li><span>update time</span> frequency of sse update messages</li>
-    </ul></div>
-    <div>
-        <h2>Endpoints</h2>
-    <ul>
-        <li><span>/health</span> returns 1 if the prometheus server is providing data for &lt;site count&gt; sites, 0 otherwise <span class="feature-needed">configurable time for stale data</span></li>
-        <li><span>/setup</span> returns json {
-  "siteCount": number of sites actually responding from prometheus,
-  "monitoredCount": &lt;site count&gt;,
-  "dnc": &lt;dnc&gt;,
-  "enc": &lt;enc&gt;,
-  "updateTime": &lt;update time&gt;
-}</li>
-        <li><span>/sse</span> sends json every &lt;update time&gt; seconds:
-            {
-                "total_kwh":the sum of export all monitored export meters,
-                "day_kwh":the sum of any increase in export meters multiplied to estimate total production since midnight,
-                "week_kwh":the sum of any increase in export meters multiplied to estimate total production in the last rolling week,
-                "year_kwh":the sum of any increase in export meters multiplied to estimate total production in the last rolling year,
-                "current_w":the sum of all sites current generation multiplied to estimate current generation for all of Scilly,
-                "sites":[
-                {
-                    "name":The "site" label from Prometheus,
-                    "snapshot":the current watts this site is producing,
-                    "today":the total kWh this site has produced since midnight,
-                    "week":the total kWh this site has produced in the last 7 * 24hrs,
-                    "year":the total kWh this site has produced in the last 365 * 24hrs,
-                    "max":the highest watts this site has produced in the last 2 years
-                },
-                {
-                    "name":"Unmonitored (estimated)" - estimates based on all monitored sites,
-                    "snapshot":the current watts,
-                    "today":the estimated kWh since midnight,
-                    "week":the estimated kWh in the last 7 * 24hrs,
-                    "year":the estimated kWh in the last 365 * 24hrs,
-                    "max":the estimated highest watts in the last 2 years
-                }
-                ]
-            }</li>
-        <li><span>/site/:sitename/:period</span> returns json:
-  {
-    "name": "site" from prometheus,
-    "meter": current meter reading,
-    "current": the current output in watts,
-    "generation_in_period": increase of export meter during period in kWh,
-    "max": highest output in period in watts,
-    "data": [
-      [timestamp in seconds, value in watts
-      ]...
-    ]
-  }
-</li>
-<li><span>/site/all/:period</span> returns json:[
-  {
-    "name": "site" from prometheus,
-    "meter": current meter reading,
-    "current": the current output in watts,
-    "generation_in_period": increase of export meter during period in kWh,
-    "max": highest output in period in watts,
-    "data": [
-      [timestamp in seconds, value in watts
-      ]...
-    ]
-  }
-]</li>
-        <li><span>/site/all</span> returns json: {
-  "metric": {
-
-  },
-  "values": [
-    [timestamp, value in watts],..., 
-  ] this array represents the combined output of all solar including estimated panels at 60 second intervals since midnight
-}</li>
-    </ul></div>
+  <div><h2>Deployment</h2></div>
+  <h3>Server</h3>
+  <p>The server is a go application running, containerised on round.infra.ioscv.co.uk. nginx, also containerised, is used as a reverse proxy.</p>
+  <p>Environment variables are set in the gridwatch.env file in the gridwatch directory at the root of round.</p>
+  <p>Deployment is handled by git pulling from the main branch, the docker image will then need to be rebuilt and restarted.</p>
+  <p class="code">
+    cd ios-gridwatch
+    git pull<br>
+    docker compose build ios-gridwatch<br>
+    docker compose down<br>
+    docker compose up -d</p>
+<p>The server exposes the following endpoints:</p>
+  <ul>
+    <li><code>GET /sse</code> - A server sent events stream <br><iframe src="https://round.infra.ioscv.co.uk/sse" frameborder="0"></iframe></li>
+    <li><code>GET /site/:site/:period</code> eg /site/porthmellon+Enterprise+Centre/7 - Returns site data for the previous 7 days for Porthmellon Enterprise Centre. <br><iframe src="https://round.infra.ioscv.co.uk/site/Porthmellon+Enterprise+Centre/7" frameborder="0"></iframe></li>
+    <li><code>GET /site/all</code> - Returns data for all sites <br><iframe src="https://round.infra.ioscv.co.uk/site/all" frameborder="0"></iframe></li>
+    <li><code>GET /setup</code> - Returns basic data such as the number of sites and other values set by flags/environment variables like the declared net capacity. <br><iframe src="https://round.infra.ioscv.co.uk/setup" frameborder="0"></iframe></li>
+    <li><code>GET /health</code> - Returns 1 if the server is receiving data from the number of sites set using the GRIDWATCH_MONITORED_COUNT flag, 0 otherwise. <br><iframe src="https://round.infra.ioscv.co.uk/health" frameborder="0"></iframe></li>
+    <li><code>GET /energylocalday</code> - Returns the sum of any increase in meter readings for any sites listed in the energy local flag in 30 minute intervals for the current day. <br><iframe src="https://round.infra.ioscv.co.uk/energylocalday" frameborder="0"></iframe></li>
+    <li><code>GET /energylocalinstant</code> - Returns the sum of current active power for all sites listed in the energy local flag. <br><iframe src="https://round.infra.ioscv.co.uk/energylocalinstant" frameborder="0"></iframe></li>
+  </ul>
+  <h3>Data</h3>
+  <p>The data is sourced from Prometheus running on merrick.infra.ioscv.co.uk. This address can be configured via the approriate flag, along with any authorisation required.</p>
+  <h3>Front End</h3>
+  <p>The front end is hosted on cloudflare and is accessible at <a href="https://ios-gridwatch.pages.dev">https://ios-gridwatch.pages.dev</a>. This uses automatically tracks changes to the github repo and serves the frontend in the <b>dist</b> folder. </p>
 </body>
 </html>

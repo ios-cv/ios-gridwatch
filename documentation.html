@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gridwatch server documention</title>
+    <style>
+        .code {
+            background-color: #f0f0f0;
+            padding: 10px;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+  <div><h2>Deployment</h2></div>
+  <h3>Server</h3>
+  <p>The server is a go application running on round.infra.ioscv.co.uk.</p>
+  <p>The deployment is handled by git pulling from the main branch, the docker image will then need to be rebuilt and restarted.</p>
+  <p class="code">git pull<br>
+docker build ios-gridwatch<br>
+docker compose up -d</p>
+<a href="server_documentation.html">click here for more details on the server</a>
+  <h3>Data</h3>
+  <p>The data is sourced from Prometheus running on merrick.infra.ioscv.co.uk. This address can be configured via the approriate flag, along with any authorisation required.</p>
+  <h3>Front End</h3>
+  <p>The front end is hosted on cloudflare and is accessible at <a href="https://ios-gridwatch.pages.dev">https://gridwatch.ioscv.co.uk</a>.</p>
+</body>
+</html>
